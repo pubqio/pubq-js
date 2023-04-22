@@ -1,5 +1,5 @@
 {
-    "name": "pubq-js",
+    "name": "@pubq/pubq-js",
     "version": "1.0.0",
     "description": "Javascript Client for Pubq",
     "main": "dist/pubq.js",
