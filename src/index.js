@@ -1,20 +1,46 @@
+const _ = require("lodash");
 const socketClusterClient = require("socketcluster-client/socketcluster-client");
 
 class Pubq {
-    constructor(applicationKey) {
-        this.applicationKey = applicationKey;
-        this.socket = null;
-        this.create();
-    }
+    constructor(applicationKey, options = {}) {
+        let defaultOptions = {
+            autoConnect: true,
+            autoReconnect: true,
+            autoSubscribeOnConnect: true,
+            connectTimeout: 20000,
+            ackTimeout: 10000,
+            timestampRequests: false,
+            timestampParam: "t",
+            authTokenName: process.env.PUBQ_PUBSUB_AUTH_TOKEN_NAME,
+            binaryType: "arraybuffer",
+            batchOnHandshake: false,
+            batchOnHandshakeDuration: 100,
+            batchInterval: 50,
+            protocolVersion: 2,
+            wsOptions: {},
+            cloneData: false,
+        };
 
-    create() {
-        this.socket = socketClusterClient.create({
+        const privateOptions = {
             hostname: process.env.PUBQ_PUBSUB_HOSTNAME,
             secure: process.env.PUBQ_PUBSUB_SECURE,
             port: process.env.PUBQ_PUBSUB_PORT,
             path: process.env.PUBQ_PUBSUB_PATH,
-            authTokenName: process.env.PUBQ_PUBSUB_AUTH_TOKEN_NAME,
-        });
+        };
+
+        this.options = _.merge(defaultOptions, options, privateOptions);
+
+        this.applicationKey = applicationKey;
+
+        this.socket = null;
+
+        if (this.options.autoConnect) {
+            this.create();
+        }
+    }
+
+    create() {
+        this.socket = socketClusterClient.create(this.options);
 
         (async () => {
             for await (let { error } of this.socket.listener("error")) {
@@ -29,6 +55,14 @@ class Pubq {
                         applicationKey: this.applicationKey,
                     });
                 }
+            }
+        })();
+
+        (async () => {
+            for await (let event of this.socket.listener("deauthenticate")) {
+                this.socket.invoke("#login", {
+                    applicationKey: this.applicationKey,
+                });
             }
         })();
     }
