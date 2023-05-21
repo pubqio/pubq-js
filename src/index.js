@@ -2,7 +2,12 @@ const _ = require("lodash");
 const socketClusterClient = require("socketcluster-client/socketcluster-client");
 
 class Pubq {
-    constructor(applicationKey, options = {}) {
+    constructor(applicationId, applicationKey, options = {}) {
+        this.applicationId = applicationId;
+        this.applicationKey = applicationKey;
+
+        this.socket = null;
+
         let defaultOptions = {
             autoConnect: true,
             autoReconnect: true,
@@ -30,10 +35,6 @@ class Pubq {
 
         this.options = _.merge(defaultOptions, options, privateOptions);
 
-        this.applicationKey = applicationKey;
-
-        this.socket = null;
-
         if (this.options.autoConnect) {
             this.create();
         }
@@ -52,6 +53,7 @@ class Pubq {
             for await (let event of this.socket.listener("connect")) {
                 if (!event.isAuthenticated) {
                     this.socket.invoke("#login", {
+                        applicationId: this.applicationId,
                         applicationKey: this.applicationKey,
                     });
                 }
@@ -61,6 +63,7 @@ class Pubq {
         (async () => {
             for await (let event of this.socket.listener("deauthenticate")) {
                 this.socket.invoke("#login", {
+                    applicationId: this.applicationId,
                     applicationKey: this.applicationKey,
                 });
             }
@@ -88,11 +91,11 @@ class Pubq {
     }
 
     subscribe(channelName) {
-        return this.socket.subscribe(`${this.applicationKey}/${channelName}`);
+        return this.socket.subscribe(`${this.applicationId}/${channelName}`);
     }
 
     unsubscribe(channelName) {
-        return this.socket.unsubscribe(`${this.applicationKey}/${channelName}`);
+        return this.socket.unsubscribe(`${this.applicationId}/${channelName}`);
     }
 
     subscriptions(includePending = false) {
@@ -101,19 +104,17 @@ class Pubq {
 
     isSubscribed(channelName, includePending = false) {
         return this.socket.isSubscribed(
-            `${this.applicationKey}/${channelName}`,
+            `${this.applicationId}/${channelName}`,
             includePending
         );
     }
 
     channel(channelName) {
-        return this.socket.channel(`${this.applicationKey}/${channelName}`);
+        return this.socket.channel(`${this.applicationId}/${channelName}`);
     }
 
     closeChannel(channelName) {
-        return this.socket.closeChannel(
-            `${this.applicationKey}/${channelName}`
-        );
+        return this.socket.closeChannel(`${this.applicationId}/${channelName}`);
     }
 
     closeAllChannels() {
@@ -121,7 +122,7 @@ class Pubq {
     }
 
     killChannel(channelName) {
-        return this.socket.killChannel(`${this.applicationKey}/${channelName}`);
+        return this.socket.killChannel(`${this.applicationId}/${channelName}`);
     }
 
     killAllChannels() {
