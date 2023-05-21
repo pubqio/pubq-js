@@ -30,12 +30,12 @@ Import from CDN:
 
 ## Interacting with Pubq
 
-Get your application key and id from [Pubq dashboard](https://dashboard.pubq.io) by [creating a new app](https://dashboard.pubq.io/applications/create) or use existing one.
+Get your application id and key from [Pubq dashboard](https://dashboard.pubq.io) by [creating a new app](https://dashboard.pubq.io/applications/create) or use existing one.
 
 Connect to Pubq:
 
 ```js
-var pubq = new Pubq("YOU_APPLICATION_ID", "YOU_APPLICATION_KEY");
+var pubq = new Pubq("YOUR_APPLICATION_ID", "YOUR_APPLICATION_KEY");
 ```
 
 Subscribe a channel:
