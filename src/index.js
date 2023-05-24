@@ -55,12 +55,6 @@ class Pubq {
         this.socket = socketClusterClient.create(this.options);
 
         (async () => {
-            for await (let { error } of this.socket.listener("error")) {
-                console.error(error);
-            }
-        })();
-
-        (async () => {
             for await (let event of this.socket.listener("connect")) {
                 if (!event.isAuthenticated) {
                     this.socket.invoke("#login", {
