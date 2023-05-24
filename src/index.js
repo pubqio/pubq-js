@@ -8,6 +8,17 @@ class Pubq {
 
         this.socket = null;
 
+        this.CONNECTING = "connecting";
+        this.OPEN = "open";
+        this.CLOSED = "closed";
+
+        this.AUTHENTICATED = "authenticated";
+        this.UNAUTHENTICATED = "unauthenticated";
+
+        this.SUBSCRIBED = "subscribed";
+        this.PENDING = "pending";
+        this.UNSUBSCRIBED = "unsubscribed";
+
         let defaultOptions = {
             autoConnect: true,
             autoReconnect: true,
