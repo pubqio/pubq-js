@@ -35,9 +35,11 @@ Import from CDN:
 ```html
 <!-- Import only pubq realtime interface -->
 <script src="https://cdn.jsdelivr.net/npm/@pubq/pubq-js@latest/dist/pubq-realtime.js"></script>
+
 <!-- Import only pubq rest interface -->
 <script src="https://cdn.jsdelivr.net/npm/@pubq/pubq-js@latest/dist/pubq-rest.js"></script>
-<!-- Or Import both pubq realtime and rest interface -->
+
+<!-- Or Import both pubq realtime and rest interfaces -->
 <script src="https://cdn.jsdelivr.net/npm/@pubq/pubq-js@latest/dist/pubq-all.js"></script>
 ```
 
