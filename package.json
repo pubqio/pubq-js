@@ -1,8 +1,8 @@
 {
     "name": "@pubq/pubq-js",
     "version": "3.0.0",
-    "description": "Javascript Client for Pubq",
-    "main": "dist/pubq.js",
+    "description": "PUBQ JavaScript SDK",
+    "main": "src/index.js",
     "scripts": {},
     "repository": {
         "type": "git",
@@ -12,16 +12,17 @@
         "pubsub",
         "channels",
         "websocket",
-        "realtime"
+        "realtime",
+        "messaging"
     ],
-    "author": "Pubq team",
+    "author": "PUBQ Team",
     "license": "ISC",
     "bugs": {
         "url": "https://github.com/pubqio/pubq-js/issues"
     },
     "homepage": "https://github.com/pubqio/pubq-js#readme",
     "dependencies": {
-        "dotenv": "^16.0.3",
+        "axios": "^1.4.0",
         "socketcluster-client": "^17.1.1"
     },
     "devDependencies": {

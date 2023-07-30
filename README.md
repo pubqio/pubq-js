@@ -1,8 +1,16 @@
+# PUBQ JavaScript SDK
+
+[PUBQ](https://pubq.io) is a pub/sub channels cloud and this is the official JavaScript client library including both real-time and REST interfaces.
+
+To meet PUBQ and see more info and examples, please read the [documentation](https://pubq.io/docs).
+
 # Getting Started
+
+Follow these steps to just start building with PUBQ in JavaScript or see the [Quickstart guide](https://pubq.io/docs/getting-started/quickstart) which covers more programming languages.
 
 ## Install with package manager
 
-Use any package manager like npm or yarn to install the library.
+Use any package manager like npm or yarn to install the JavaScript SDK.
 
 Npm:
 
@@ -16,32 +24,37 @@ Yarn:
 yarn add @pubq/pubq-js
 ```
 
-Import as ES6 module:
+Import as ES module:
 
 ```js
-const Pubq = require("@pubq/pubq-js");
+import { RealTime, REST } from "@pubq/pubq-js";
 ```
 
 Import from CDN:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@pubq/pubq-js@latest/dist/pubq.js"></script>
+<!-- Import only pubq realtime interface -->
+<script src="https://cdn.jsdelivr.net/npm/@pubq/pubq-js@latest/dist/pubq-realtime.js"></script>
+<!-- Import only pubq rest interface -->
+<script src="https://cdn.jsdelivr.net/npm/@pubq/pubq-js@latest/dist/pubq-rest.js"></script>
+<!-- Or Import both pubq realtime and rest interface -->
+<script src="https://cdn.jsdelivr.net/npm/@pubq/pubq-js@latest/dist/pubq-all.js"></script>
 ```
 
-## Interacting with Pubq
+## Interacting with PUBQ
 
-Get your application id and key from [Pubq dashboard](https://dashboard.pubq.io) by [creating a new app](https://dashboard.pubq.io/applications/create) or use existing one.
+Get your application id and key from [PUBQ dashboard](https://dashboard.pubq.io) by [creating a new app](https://dashboard.pubq.io/applications/create) or use existing one.
 
-Connect to Pubq:
+Connect to PUBQ:
 
 ```js
-var pubq = new Pubq("YOUR_APPLICATION_ID", "YOUR_APPLICATION_KEY");
+const realtime = new RealTime("YOUR_APPLICATION_ID", "YOUR_APPLICATION_KEY");
 ```
 
 Subscribe a channel:
 
 ```js
-let channel = pubq.subscribe("my-channel");
+let channel = realtime.subscribe("my-channel");
 ```
 
 Listen for any data publish to receive:
@@ -54,6 +67,18 @@ Listen for any data publish to receive:
 })();
 ```
 
+Publish a message with REST interface:
+
+```js
+const rest = new REST(
+    "YOUR_APPLICATION_ID",
+    "YOUR_APPLICATION_KEY",
+    "YOUR_APPLICATION_SECRET"
+);
+
+rest.publish("my-channel", "Hello!");
+```
+
 # Development
 
 ## Install
@@ -61,11 +86,12 @@ Listen for any data publish to receive:
 ```bash
 git clone git@github.com:pubqio/pubq-js.git
 cd ./pubq-js/
-cp .env.example .env
 npm i
 ```
 
 ## Build
+
+To build umd bundles, run:
 
 ```bash
 npx webpack
