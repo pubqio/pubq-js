@@ -12,7 +12,6 @@ export default class REST {
     }
 
     async publish(channel, data) {
-        console.log({ channel, data });
         try {
             const response = await this.httpClient.post(
                 "/v1/messages/publish",
@@ -25,6 +24,7 @@ export default class REST {
                     },
                 }
             );
+
             return response.data;
         } catch (error) {
             console.error("Error publishing message:", error);
