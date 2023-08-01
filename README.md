@@ -83,6 +83,8 @@ rest.publish("my-channel", "Hello!");
 
 # Development
 
+Please, read the [contribution guide](https://pubq.io/docs/basics/contribution).
+
 ## Install
 
 ```bash
