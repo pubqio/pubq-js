@@ -20,7 +20,7 @@
     "bugs": {
         "url": "https://github.com/pubqio/pubq-js/issues"
     },
-    "homepage": "https://github.com/pubqio/pubq-js#readme",
+    "homepage": "https://pubq.io",
     "dependencies": {
         "axios": "^1.4.0",
         "socketcluster-client": "^17.1.1"
