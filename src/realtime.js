@@ -2,8 +2,7 @@ const _ = require("lodash");
 const socketClusterClient = require("socketcluster-client/socketcluster-client");
 
 export default class RealTime {
-    constructor(applicationId, applicationKey, options = {}) {
-        this.applicationId = applicationId;
+    constructor(applicationKey, options = {}) {
         this.applicationKey = applicationKey;
 
         this.socket = null;
@@ -57,22 +56,31 @@ export default class RealTime {
         (async () => {
             for await (let event of this.socket.listener("connect")) {
                 if (!event.isAuthenticated) {
-                    this.socket.invoke("#login", {
-                        applicationId: this.applicationId,
-                        applicationKey: this.applicationKey,
-                    });
+                    this.login();
                 }
             }
         })();
 
         (async () => {
-            for await (let event of this.socket.listener("deauthenticate")) {
-                this.socket.invoke("#login", {
-                    applicationId: this.applicationId,
-                    applicationKey: this.applicationKey,
-                });
+            for await (let event of this.socket.listener("authenticate")) {
+                const [appId] = event.authToken.public_key.split(".");
+                this.applicationId = appId;
             }
         })();
+
+        (async () => {
+            for await (let event of this.socket.listener("deauthenticate")) {
+                this.login();
+            }
+        })();
+    }
+
+    login() {
+        this.socket.invoke("#login", {
+            authorization: `Basic ${Buffer.from(this.applicationKey).toString(
+                "base64"
+            )}`,
+        });
     }
 
     connect() {
