@@ -12,7 +12,7 @@ export default class REST {
     async publish(channel, data) {
         try {
             const response = await this.httpClient.post(
-                "/v1/messages/publish",
+                "/v1/channels/messages",
                 { channel, data },
                 {
                     headers: {
