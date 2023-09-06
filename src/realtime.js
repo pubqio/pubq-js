@@ -37,7 +37,7 @@ export default class RealTime {
         };
 
         const privateOptions = {
-            hostname: "rt.pubq.io",
+            hostname: "realtime.pubq.io",
             secure: true,
             port: 443,
             path: "/",
