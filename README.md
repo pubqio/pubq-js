@@ -33,14 +33,14 @@ import { RealTime, REST } from "@pubq/pubq-js";
 Import from CDN:
 
 ```html
-<!-- Import only pubq realtime interface -->
-<script src="https://cdn.jsdelivr.net/npm/@pubq/pubq-js@latest/dist/pubq-realtime.js"></script>
+<!-- Import both pubq realtime and rest interfaces -->
+<script src="https://cdn.jsdelivr.net/npm/@pubq/pubq-js@latest/bundle/pubq.js"></script>
 
-<!-- Import only pubq rest interface -->
-<script src="https://cdn.jsdelivr.net/npm/@pubq/pubq-js@latest/dist/pubq-rest.js"></script>
+<!-- Or import only pubq realtime interface -->
+<script src="https://cdn.jsdelivr.net/npm/@pubq/pubq-js@latest/bundle/pubq-realtime.js"></script>
 
-<!-- Or Import both pubq realtime and rest interfaces -->
-<script src="https://cdn.jsdelivr.net/npm/@pubq/pubq-js@latest/dist/pubq-all.js"></script>
+<!-- Or import only pubq rest interface -->
+<script src="https://cdn.jsdelivr.net/npm/@pubq/pubq-js@latest/bundle/pubq-rest.js"></script>
 ```
 
 ## Interacting with PUBQ
@@ -94,5 +94,5 @@ npm i
 To build umd bundles, run:
 
 ```bash
-npx webpack
+npm run build
 ```

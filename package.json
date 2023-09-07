@@ -2,18 +2,22 @@
     "name": "@pubq/pubq-js",
     "version": "5.1.0",
     "description": "PUBQ JavaScript SDK",
-    "main": "src/index.js",
-    "scripts": {},
+    "main": "bundle/pubq.js",
+    "scripts": {
+        "build": "npx webpack"
+    },
     "repository": {
         "type": "git",
         "url": "git+ssh://git@github.com/pubqio/pubq-js.git"
     },
     "keywords": [
+        "pubq",
         "pubsub",
         "channels",
         "websocket",
         "realtime",
-        "messaging"
+        "messaging",
+        "communication"
     ],
     "author": "PUBQ Team",
     "license": "ISC",
@@ -22,11 +26,13 @@
     },
     "homepage": "https://pubq.io",
     "dependencies": {
-        "axios": "^1.4.0",
+        "axios": "^1.5.0",
         "socketcluster-client": "^17.1.1"
     },
     "devDependencies": {
         "lodash": "^4.17.21",
+        "ts-loader": "^9.4.4",
+        "typescript": "^5.2.2",
         "webpack": "^5.80.0",
         "webpack-cli": "^5.0.2"
     }

@@ -1,9 +1,26 @@
 const _ = require("lodash");
-const socketClusterClient = require("socketcluster-client/socketcluster-client");
+const socketClusterClient = require("socketcluster-client");
 
-export default class RealTime {
-    constructor(applicationKey, options = {}) {
+class RealTime {
+    private applicationKey: string;
+    private applicationId: string | null;
+
+    private options: any;
+
+    private socket: any;
+
+    public CONNECTING: string;
+    public OPEN: string;
+    public CLOSED: string;
+    public AUTHENTICATED: string;
+    public UNAUTHENTICATED: string;
+    public SUBSCRIBED: string;
+    public PENDING: string;
+    public UNSUBSCRIBED: string;
+
+    constructor(applicationKey: string, options = {}) {
         this.applicationKey = applicationKey;
+        this.applicationId = null;
 
         this.socket = null;
 
@@ -103,11 +120,11 @@ export default class RealTime {
         return this.socket.deauthenticate();
     }
 
-    subscribe(channelName) {
+    subscribe(channelName: string) {
         return this.socket.subscribe(`${this.applicationId}/${channelName}`);
     }
 
-    unsubscribe(channelName) {
+    unsubscribe(channelName: string) {
         return this.socket.unsubscribe(`${this.applicationId}/${channelName}`);
     }
 
@@ -115,18 +132,18 @@ export default class RealTime {
         return this.socket.subscriptions(includePending);
     }
 
-    isSubscribed(channelName, includePending = false) {
+    isSubscribed(channelName: string, includePending = false) {
         return this.socket.isSubscribed(
             `${this.applicationId}/${channelName}`,
             includePending
         );
     }
 
-    channel(channelName) {
+    channel(channelName: string) {
         return this.socket.channel(`${this.applicationId}/${channelName}`);
     }
 
-    closeChannel(channelName) {
+    closeChannel(channelName: string) {
         return this.socket.closeChannel(`${this.applicationId}/${channelName}`);
     }
 
@@ -134,7 +151,7 @@ export default class RealTime {
         return this.socket.closeAllChannels();
     }
 
-    killChannel(channelName) {
+    killChannel(channelName: string) {
         return this.socket.killChannel(`${this.applicationId}/${channelName}`);
     }
 
@@ -142,11 +159,11 @@ export default class RealTime {
         return this.socket.killAllChannels();
     }
 
-    listener(eventName) {
+    listener(eventName: string) {
         return this.socket.listener(eventName);
     }
 
-    closeListener(eventName) {
+    closeListener(eventName: string) {
         return this.socket.closeListener(eventName);
     }
 
@@ -154,7 +171,7 @@ export default class RealTime {
         return this.socket.closeAllListeners();
     }
 
-    killListener(eventName) {
+    killListener(eventName: string) {
         return this.socket.killListener(eventName);
     }
 
@@ -162,3 +179,5 @@ export default class RealTime {
         return this.socket.killAllListeners();
     }
 }
+
+export { RealTime };

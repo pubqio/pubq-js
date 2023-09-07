@@ -1,0 +1,37 @@
+declare class RealTime {
+    private applicationKey;
+    private applicationId;
+    private options;
+    private socket;
+    CONNECTING: string;
+    OPEN: string;
+    CLOSED: string;
+    AUTHENTICATED: string;
+    UNAUTHENTICATED: string;
+    SUBSCRIBED: string;
+    PENDING: string;
+    UNSUBSCRIBED: string;
+    constructor(applicationKey: string, options?: {});
+    create(): void;
+    login(): void;
+    connect(): any;
+    disconnect(): any;
+    getState(): any;
+    isAuthenticated(): any;
+    deauthenticate(): any;
+    subscribe(channelName: string): any;
+    unsubscribe(channelName: string): any;
+    subscriptions(includePending?: boolean): any;
+    isSubscribed(channelName: string, includePending?: boolean): any;
+    channel(channelName: string): any;
+    closeChannel(channelName: string): any;
+    closeAllChannels(): any;
+    killChannel(channelName: string): any;
+    killAllChannels(): any;
+    listener(eventName: string): any;
+    closeListener(eventName: string): any;
+    closeAllListeners(): any;
+    killListener(eventName: string): any;
+    killAllListeners(): any;
+}
+export { RealTime };
