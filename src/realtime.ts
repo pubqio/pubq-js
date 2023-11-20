@@ -1,13 +1,22 @@
-const _ = require("lodash");
-const socketClusterClient = require("socketcluster-client");
+import { comonOptions } from "./types/comonOptions";
+import { defaultComonOptions } from "./defaults/defaultComonOptions";
+import { defaultPrivateOptions } from "./defaults/defaultPrivateOptions";
+import { WebSocket } from "./websocket";
+import { Auth } from "./auth";
+import { REST } from "./rest";
 
 class RealTime {
-    private applicationKey: string;
-    private applicationId: string | null;
+    private options: comonOptions;
 
-    private options: any;
+    private ws;
 
-    private socket: any;
+    private socket;
+
+    private auth;
+
+    private rest;
+
+    private applicationId: string | undefined;
 
     public CONNECTING: string;
     public OPEN: string;
@@ -18,11 +27,20 @@ class RealTime {
     public PENDING: string;
     public UNSUBSCRIBED: string;
 
-    constructor(applicationKey: string, options = {}) {
-        this.applicationKey = applicationKey;
-        this.applicationId = null;
+    constructor(options: Partial<comonOptions>) {
+        this.options = {
+            ...defaultComonOptions,
+            ...options,
+            ...defaultPrivateOptions,
+        };
 
-        this.socket = null;
+        this.ws = new WebSocket();
+
+        this.socket = this.ws.getClient();
+
+        this.auth = new Auth(this.options);
+
+        this.rest = new REST(this.options, this.auth);
 
         this.CONNECTING = "connecting";
         this.OPEN = "open";
@@ -35,69 +53,40 @@ class RealTime {
         this.PENDING = "pending";
         this.UNSUBSCRIBED = "unsubscribed";
 
-        let defaultOptions = {
-            autoConnect: true,
-            autoReconnect: true,
-            autoSubscribeOnConnect: true,
-            connectTimeout: 20000,
-            ackTimeout: 10000,
-            timestampRequests: false,
-            timestampParam: "t",
-            authTokenName: "pubq.authToken",
-            binaryType: "arraybuffer",
-            batchOnHandshake: false,
-            batchOnHandshakeDuration: 100,
-            batchInterval: 50,
-            protocolVersion: 2,
-            wsOptions: {},
-            cloneData: false,
-        };
-
-        const privateOptions = {
-            hostname: "realtime.pubq.io",
-            secure: true,
-            port: 443,
-            path: "/",
-        };
-
-        this.options = _.merge(defaultOptions, options, privateOptions);
-
         if (this.options.autoConnect) {
             this.create();
         }
     }
 
     create() {
-        this.socket = socketClusterClient.create(this.options);
+        this.socket = this.socket.create(this.options);
 
         (async () => {
             for await (let event of this.socket.listener("connect")) {
-                if (!event.isAuthenticated) {
-                    this.login();
+                if (this.options.autoAuthenticate) {
+                    if (!event.isAuthenticated) {
+                        this.authenticate();
+                    }
                 }
             }
         })();
 
         (async () => {
             for await (let event of this.socket.listener("authenticate")) {
-                const [appId] = event.authToken.public_key.split(".");
-                this.applicationId = appId;
+                if (typeof this.applicationId === "undefined") {
+                    const [appId] = event.authToken.sub.split(".");
+                    this.applicationId = appId;
+                }
             }
         })();
 
         (async () => {
             for await (let event of this.socket.listener("deauthenticate")) {
-                this.login();
+                if (this.options.autoAuthenticate) {
+                    this.authenticate();
+                }
             }
         })();
-    }
-
-    login() {
-        this.socket.invoke("#login", {
-            authorization: `Basic ${Buffer.from(this.applicationKey).toString(
-                "base64"
-            )}`,
-        });
     }
 
     connect() {
@@ -116,7 +105,28 @@ class RealTime {
         return this.socket.isAuthenticated();
     }
 
+    basicAuth() {
+        this.socket.invoke("#basicAuth", {
+            key: this.auth.getKey(),
+        });
+    }
+
+    async authenticate(body: object = {}, headers: object = {}) {
+        const authMethod = this.auth.getAuthMethod();
+
+        if (authMethod === "Basic") {
+            this.basicAuth();
+        } else if (authMethod === "Bearer") {
+            const response: any = await this.requestToken();
+            if (response) {
+                await this.disconnect();
+                this.connect();
+            }
+        }
+    }
+
     deauthenticate() {
+        this.requestRevoke();
         return this.socket.deauthenticate();
     }
 
@@ -177,6 +187,18 @@ class RealTime {
 
     killAllListeners() {
         return this.socket.killAllListeners();
+    }
+
+    requestToken() {
+        return this.rest.requestToken();
+    }
+
+    requestRefresh() {
+        return this.rest.requestRefresh();
+    }
+
+    requestRevoke() {
+        return this.rest.requestRevoke();
     }
 }
 
