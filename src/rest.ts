@@ -2,7 +2,8 @@ import { comonOptions } from "./types/comonOptions";
 import { defaultComonOptions } from "./defaults/defaultComonOptions";
 import { Http } from "./http";
 import { Auth } from "./auth";
-const store = require("store");
+import { getJwtPayload, getSignedAuthToken } from "./utils/jwt";
+import { getRemainingSeconds } from "./utils/time";
 
 class REST {
     private options: comonOptions;
@@ -15,6 +16,8 @@ class REST {
 
     private auth;
 
+    private refreshTokenIntervalId: any;
+
     constructor(options: Partial<comonOptions>, auth?: Auth) {
         this.options = { ...defaultComonOptions, ...options };
 
@@ -26,6 +29,10 @@ class REST {
             this.auth = new Auth(this.options);
         } else {
             this.auth = auth;
+        }
+
+        if (this.options.autoRefreshToken) {
+            this.startRefreshTokenInterval();
         }
     }
 
@@ -89,83 +96,115 @@ class REST {
     }
 
     async requestToken() {
-        if (
-            typeof this.options.authUrl !== "undefined" &&
-            this.options.authUrl
-        ) {
-            await this.client
-                .post(this.options.authUrl, this.options.authBody, {
-                    headers: this.options.authHeaders,
-                })
-                .then((response) => {
-                    store.set(
-                        this.options.authTokenName,
-                        response.data.data.token
-                    );
+        if (this.options.authUrl) {
+            try {
+                const response = await this.client.post(
+                    this.options.authUrl,
+                    this.options.authBody,
+                    { headers: this.options.authHeaders }
+                );
 
-                    return response;
-                })
-                .catch((error) => {
-                    throw error;
-                });
+                localStorage.setItem(
+                    this.options.authTokenName,
+                    response.data.data.token
+                );
+
+                return response.data.data;
+            } catch (error) {
+                console.error("Error in requestToken:", error);
+                throw error;
+            }
         }
 
         throw new Error("Auth URL has not been provided.");
     }
 
     async requestRefresh() {
-        if (
-            typeof this.options.refreshUrl !== "undefined" &&
-            this.options.refreshUrl
-        ) {
-            const body = {
-                ...this.options.authBody,
-                ...{ token: store.get(this.options.authTokenName) },
-            };
-            await this.client
-                .post(this.options.refreshUrl, body, {
-                    headers: this.options.authHeaders,
-                })
-                .then((response) => {
-                    store.set(
-                        this.options.authTokenName,
-                        response.data.data.token
-                    );
+        if (this.options.refreshUrl) {
+            try {
+                const body = {
+                    ...this.options.authBody,
+                    ...{
+                        token: getSignedAuthToken(this.options.authTokenName),
+                    },
+                };
 
-                    return response;
-                })
-                .catch((error) => {
-                    throw error;
-                });
+                const response = await this.client.post(
+                    this.options.refreshUrl,
+                    body,
+                    {
+                        headers: this.options.authHeaders,
+                    }
+                );
+
+                localStorage.setItem(
+                    this.options.authTokenName,
+                    response.data.data.token
+                );
+
+                return response.data.data;
+            } catch (error) {
+                console.error("Error in requestRefresh:", error);
+                throw error;
+            }
         }
 
         throw new Error("Refresh URL has not been provided.");
     }
 
     async requestRevoke() {
-        if (
-            typeof this.options.revokeUrl !== "undefined" &&
-            this.options.revokeUrl
-        ) {
-            const body = {
-                ...this.options.authBody,
-                ...{ token: store.get(this.options.authTokenName) },
-            };
-            await this.client
-                .post(this.options.revokeUrl, body, {
-                    headers: this.options.authHeaders,
-                })
-                .then((response) => {
-                    store.remove(this.options.authTokenName);
+        if (this.options.revokeUrl) {
+            try {
+                const body = {
+                    ...this.options.authBody,
+                    ...{
+                        token: getSignedAuthToken(this.options.authTokenName),
+                    },
+                };
 
-                    return response;
-                })
-                .catch((error) => {
-                    throw error;
-                });
+                const response = await this.client.post(
+                    this.options.revokeUrl,
+                    body,
+                    {
+                        headers: this.options.authHeaders,
+                    }
+                );
+
+                localStorage.removeItem(this.options.authTokenName);
+
+                return response.data.data;
+            } catch (error) {
+                console.error("Error in requestRevoke:", error);
+                throw error;
+            }
         }
 
         throw new Error("Revoke URL has not been provided.");
+    }
+
+    startRefreshTokenInterval() {
+        if (this.auth.getAuthMethod() === "Bearer") {
+            // Stop if any refresh token interval is exist
+            this.stopRefreshTokenInterval();
+
+            this.refreshTokenIntervalId = setInterval(() => {
+                const token = getSignedAuthToken(this.options.authTokenName);
+                const authToken = getJwtPayload(token);
+
+                if (authToken) {
+                    const remainingSeconds = getRemainingSeconds(authToken.exp);
+                    if (remainingSeconds <= 60) {
+                        this.requestRefresh();
+                    }
+                }
+            }, this.options.refreshTokenInterval);
+        }
+    }
+
+    stopRefreshTokenInterval() {
+        if (this.refreshTokenIntervalId) {
+            clearInterval(this.refreshTokenIntervalId);
+        }
     }
 }
 
