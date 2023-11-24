@@ -16,10 +16,6 @@ class Auth {
         this.http = new Http(this.options);
     }
 
-    private initRest() {
-        this.rest = new REST(this.options, this);
-    }
-
     getAuthMethod() {
         if (
             typeof this.options.authUrl !== "undefined" &&
