@@ -50,7 +50,7 @@ Get your application API key from [PUBQ dashboard](https://dashboard.pubq.io) by
 Connect to PUBQ:
 
 ```js
-const realtime = new RealTime("YOUR_API_KEY");
+const realtime = new RealTime({ key: "YOUR_API_KEY" });
 ```
 
 Subscribe a channel:
@@ -72,7 +72,7 @@ Listen for any data publish to receive:
 Publish a message with REST interface:
 
 ```js
-const rest = new REST("YOUR_API_KEY");
+const rest = new REST({ key: "YOUR_API_KEY" });
 
 rest.publish("my-channel", "Hello!");
 ```
