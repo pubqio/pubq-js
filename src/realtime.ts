@@ -117,11 +117,8 @@ class RealTime {
         if (authMethod === "Basic") {
             this.basicAuth();
         } else if (authMethod === "Bearer") {
-            const response: any = await this.requestToken();
-            if (response) {
-                await this.disconnect();
-                this.connect();
-            }
+            const tokenData = await this.requestToken();
+            this.socket.authenticate(tokenData.token);
         }
     }
 
@@ -199,6 +196,14 @@ class RealTime {
 
     requestRevoke() {
         return this.rest.requestRevoke();
+    }
+
+    startRefreshTokenInterval() {
+        return this.rest.startRefreshTokenInterval();
+    }
+
+    stopRefreshTokenInterval() {
+        return this.rest.stopRefreshTokenInterval();
     }
 }
 
