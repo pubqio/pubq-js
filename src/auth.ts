@@ -1,7 +1,7 @@
 import { comonOptions } from "./types/comonOptions";
 import { Http } from "./http";
 import { REST } from "./rest";
-const store = require("store");
+import { getSignedAuthToken } from "./utils/jwt";
 
 class Auth {
     private options: comonOptions;
@@ -42,7 +42,7 @@ class Auth {
         }
 
         if (this.options.authUrl) {
-            return store.get(this.options.authTokenName);
+            return getSignedAuthToken(this.options.authTokenName);
         } else if (this.options.key) {
             return this.getKeyBase64();
         }
