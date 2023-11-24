@@ -1,6 +1,5 @@
 import { comonOptions } from "./types/comonOptions";
 import { Http } from "./http";
-import { REST } from "./rest";
 import { getSignedAuthToken } from "./utils/jwt";
 
 class Auth {
