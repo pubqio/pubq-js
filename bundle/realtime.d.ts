@@ -1,8 +1,11 @@
+import { comonOptions } from "./types/comonOptions";
 declare class RealTime {
-    private applicationKey;
-    private applicationId;
     private options;
+    private ws;
     private socket;
+    private auth;
+    private rest;
+    private applicationId;
     CONNECTING: string;
     OPEN: string;
     CLOSED: string;
@@ -11,13 +14,14 @@ declare class RealTime {
     SUBSCRIBED: string;
     PENDING: string;
     UNSUBSCRIBED: string;
-    constructor(applicationKey: string, options?: {});
+    constructor(options: Partial<comonOptions>);
     create(): void;
-    login(): void;
     connect(): any;
     disconnect(): any;
     getState(): any;
     isAuthenticated(): any;
+    basicAuth(): void;
+    authenticate(body?: object, headers?: object): Promise<void>;
     deauthenticate(): any;
     subscribe(channelName: string): any;
     unsubscribe(channelName: string): any;
@@ -33,5 +37,10 @@ declare class RealTime {
     closeAllListeners(): any;
     killListener(eventName: string): any;
     killAllListeners(): any;
+    requestToken(): Promise<any>;
+    requestRefresh(): Promise<any>;
+    requestRevoke(): Promise<any>;
+    startRefreshTokenInterval(): void;
+    stopRefreshTokenInterval(): void;
 }
 export { RealTime };
