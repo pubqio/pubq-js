@@ -14,10 +14,6 @@ class Auth {
         this.options = options;
 
         this.http = new Http(this.options);
-
-        if (this.getAuthMethod() === "Bearer") {
-            this.autoRefreshTokenInterval();
-        }
     }
 
     private initRest() {
@@ -72,17 +68,6 @@ class Auth {
         }
 
         throw new Error("Auth method has not been specified.");
-    }
-
-    autoRefreshTokenInterval() {
-        if (this.options.autoRefreshToken) {
-            this.initRest();
-
-            setInterval(() => {
-                console.log("refresh token");
-                // this.rest.requestRefresh();
-            }, this.options.refreshTokenInterval);
-        }
     }
 }
 
