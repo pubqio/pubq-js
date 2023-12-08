@@ -1,4 +1,17 @@
-import { RealTime } from "./realtime";
-import { REST } from "./rest";
+import * as RealTimeModule from "./realtime";
+import * as RESTModule from "./rest";
 
-export { RealTime, REST };
+export namespace Pubq {
+    export import RealTime = RealTimeModule.Pubq.RealTime;
+    export import REST = RESTModule.Pubq.REST;
+}
+
+declare global {
+    interface Window {
+        Pubq: typeof Pubq;
+    }
+}
+
+if (typeof window !== "undefined") {
+    window.Pubq = Pubq;
+}
