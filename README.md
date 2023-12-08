@@ -27,20 +27,13 @@ yarn add @pubq/pubq-js
 Import as ES module:
 
 ```js
-import { RealTime, REST } from "@pubq/pubq-js";
+import { Pubq } from "@pubq/pubq-js";
 ```
 
 Import from CDN:
 
 ```html
-<!-- Import both pubq realtime and rest interfaces -->
 <script src="https://cdn.jsdelivr.net/npm/@pubq/pubq-js@latest/bundle/pubq.js"></script>
-
-<!-- Or import only pubq realtime interface -->
-<script src="https://cdn.jsdelivr.net/npm/@pubq/pubq-js@latest/bundle/pubq-realtime.js"></script>
-
-<!-- Or import only pubq rest interface -->
-<script src="https://cdn.jsdelivr.net/npm/@pubq/pubq-js@latest/bundle/pubq-rest.js"></script>
 ```
 
 ## Interacting with PUBQ
@@ -50,7 +43,7 @@ Get your application API key from [PUBQ dashboard](https://dashboard.pubq.io) by
 Connect to PUBQ:
 
 ```js
-const realtime = new RealTime({ key: "YOUR_API_KEY" });
+const realtime = new Pubq.RealTime({ key: "YOUR_API_KEY" });
 ```
 
 Subscribe a channel:
@@ -69,10 +62,16 @@ Listen for any data publish to receive:
 })();
 ```
 
+Publish a message:
+
+```js
+realtime.publish("my-channel", "Hello!");
+```
+
 Publish a message with REST interface:
 
 ```js
-const rest = new REST({ key: "YOUR_API_KEY" });
+const rest = new Pubq.REST({ key: "YOUR_API_KEY" });
 
 rest.publish("my-channel", "Hello!");
 ```
