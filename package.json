@@ -1,6 +1,6 @@
 {
     "name": "@pubq/pubq-js",
-    "version": "7.0.0",
+    "version": "7.1.0",
     "description": "PUBQ JavaScript SDK",
     "main": "bundle/pubq.js",
     "scripts": {
