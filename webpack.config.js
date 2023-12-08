@@ -2,9 +2,7 @@ const path = require("path");
 
 module.exports = {
     entry: {
-        'pubq-realtime': "./src/realtime.ts",
-        'pubq-rest': "./src/rest.ts",
-        'pubq': "./src/pubq.ts",
+        pubq: "./src/pubq.ts",
     },
     output: {
         path: path.resolve(__dirname, "bundle"),
