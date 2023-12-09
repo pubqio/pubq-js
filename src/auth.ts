@@ -1,18 +1,11 @@
 import { comonOptions } from "./types/comonOptions";
-import { Http } from "./http";
 import { getSignedAuthToken } from "./utils/jwt";
 
 class Auth {
     private options: comonOptions;
 
-    private http;
-
-    private rest: any;
-
     constructor(options: comonOptions) {
         this.options = options;
-
-        this.http = new Http(this.options);
     }
 
     getAuthMethod() {
