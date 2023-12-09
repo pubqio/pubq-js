@@ -6,7 +6,7 @@ export declare namespace Pubq {
         private http;
         private client;
         private version;
-        private auth;
+        auth: Auth;
         private refreshTokenIntervalId;
         constructor(options: Partial<comonOptions>, auth?: Auth);
         publish(channel: string, data: string | any[]): Promise<any>;

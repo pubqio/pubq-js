@@ -1,10 +1,8 @@
-import { comonOptions } from "./types/comonOptions";
 import { AxiosInstance } from "axios";
 declare class Http {
-    private options;
-    private baseURL;
+    private baseUrl;
     private client;
-    constructor(options: comonOptions);
+    constructor();
     getClient(): AxiosInstance;
 }
 export { Http };
