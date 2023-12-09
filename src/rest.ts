@@ -15,14 +15,14 @@ export namespace Pubq {
 
         private version = "v1";
 
-        private auth;
+        public auth;
 
         private refreshTokenIntervalId: any;
 
         constructor(options: Partial<comonOptions>, auth?: Auth) {
             this.options = { ...defaultComonOptions, ...options };
 
-            this.http = new Http(this.options);
+            this.http = new Http();
 
             this.client = this.http.getClient();
 
@@ -51,7 +51,7 @@ export namespace Pubq {
                 }
             );
 
-            return response.data;
+            return response;
         }
 
         async generateToken(clientId: string | undefined): Promise<any> {
