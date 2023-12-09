@@ -1,18 +1,13 @@
-import { comonOptions } from "./types/comonOptions";
 import axios, { AxiosInstance } from "axios";
 
 class Http {
-    private options: comonOptions;
-
-    private baseURL = "rest.pubq.io";
+    private baseUrl = "https://rest.pubq.io";
 
     private client: AxiosInstance;
 
-    constructor(options: comonOptions) {
-        this.options = options;
-
+    constructor() {
         this.client = axios.create({
-            baseURL: `https://${this.baseURL}`,
+            baseURL: this.baseUrl,
         });
     }
 
