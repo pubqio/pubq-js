@@ -4,6 +4,7 @@ import { Http } from "./http";
 import { Auth } from "./auth";
 import { getJwtPayload, getSignedAuthToken } from "./utils/jwt";
 import { getRemainingSeconds } from "./utils/time";
+import { generateTokenOptions } from "./types/generateTokenOptions";
 
 export namespace Pubq {
     export class REST {
@@ -54,10 +55,10 @@ export namespace Pubq {
             return response;
         }
 
-        async generateToken(clientId: string | undefined): Promise<any> {
+        async generateToken(options: generateTokenOptions): Promise<any> {
             const response = await this.client.post(
                 `/${this.version}/keys/tokens`,
-                { clientId: clientId },
+                { clientId: options.clientId },
                 {
                     headers: {
                         Authorization: this.auth.makeAuthorizationHeader(),
