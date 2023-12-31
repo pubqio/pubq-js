@@ -1,4 +1,4 @@
-export type comonOptions = {
+export type CommonOptions = {
     key: string | undefined;
 
     authUrl: string | undefined;
