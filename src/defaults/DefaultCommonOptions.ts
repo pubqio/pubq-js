@@ -1,6 +1,6 @@
-import { comonOptions } from "../types/comonOptions";
+import { CommonOptions } from "../types/CommonOptions";
 
-export const defaultComonOptions: comonOptions = {
+export const DefaultCommonOptions: CommonOptions = {
     key: undefined,
 
     authUrl: undefined,
