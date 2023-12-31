@@ -1,4 +1,4 @@
-export type privateOptions = {
+export type PrivateOptions = {
     hostname?: string;
     secure: boolean;
     port?: number;
