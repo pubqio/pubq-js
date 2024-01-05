@@ -1,17 +1,28 @@
+import { CommonOptions } from "./types/CommonOptions";
+
 const scc = require("socketcluster-client");
 
 class WebSocket {
     private static instance: WebSocket;
 
-    public socket = scc;
+    public socket: any;
 
-    private constructor() {}
+    private constructor(sccOptions: CommonOptions) {
+        sccOptions.autoConnect = false;
 
-    public static getInstance(): WebSocket {
-        if (!this.instance) {
-            this.instance = new WebSocket();
+        this.socket = scc.create(sccOptions);
+    }
+
+    public static getInstance(sccOptions?: CommonOptions): WebSocket {
+        if (!this.instance && sccOptions) {
+            sccOptions.autoConnect = false;
+            this.instance = new WebSocket(sccOptions);
         }
         return this.instance;
+    }
+
+    getSocket(): WebSocket | null {
+        return this.socket;
     }
 }
 
