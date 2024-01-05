@@ -1,3 +1,3 @@
-export type GenerateTokenOptions = {
+export type TokenOptions = {
     clientId: string | undefined;
 };
