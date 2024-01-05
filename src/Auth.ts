@@ -78,9 +78,11 @@ class Auth {
     }
 
     basicAuth() {
-        this.ws.socket.invoke("#basicAuth", {
-            key: this.getKey(),
-        });
+        const credentials: Record<string, any> = {};
+
+        credentials.key = this.getKey();
+
+        this.ws.socket.invoke("#basicAuth", credentials);
     }
 
     async authenticate(body: object = {}, headers: object = {}) {
