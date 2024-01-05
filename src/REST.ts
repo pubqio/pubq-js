@@ -2,7 +2,7 @@ import { CommonOptions } from "./types/CommonOptions";
 import { DefaultCommonOptions } from "./defaults/DefaultCommonOptions";
 import { Http } from "./Http";
 import { Auth } from "./Auth";
-import { GenerateTokenOptions } from "./types/GenerateTokenOptions";
+import { TokenOptions } from "./types/TokenOptions";
 
 export namespace Pubq {
     export class REST {
@@ -51,7 +51,7 @@ export namespace Pubq {
             return response;
         }
 
-        async generateToken(options: GenerateTokenOptions): Promise<any> {
+        async generateToken(options: TokenOptions): Promise<any> {
             const response = await this.client.post(
                 `/${this.version}/keys/tokens`,
                 { clientId: options.clientId },
