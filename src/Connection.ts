@@ -1,10 +1,10 @@
-import { App } from "../App";
-import { DefaultConnectionEvents } from "../defaults/DefaultConnectionEvents";
-import { CommonOptions } from "../types/CommonOptions";
-import { ConnectionEvent } from "../types/Events";
-import { ConnectionListener } from "../types/Listeners";
-import { ConnectionState } from "../types/States";
-import { WebSocket } from "../WebSocket";
+import { App } from "./App";
+import { DefaultConnectionEvents } from "./defaults/DefaultConnectionEvents";
+import { CommonOptions } from "./types/CommonOptions";
+import { ConnectionEvent } from "./types/Events";
+import { ConnectionListener } from "./types/Listeners";
+import { ConnectionState } from "./types/States";
+import { WebSocket } from "./WebSocket";
 import { ConnectionManager } from "./ConnectionManager";
 
 var EventEmitter = require("eventemitter3");
@@ -12,9 +12,9 @@ var EventEmitter = require("eventemitter3");
 class Connection {
     private options: CommonOptions;
 
-    private ws = WebSocket.getInstance();
+    private ws;
 
-    private app = App.getInstance();
+    private app;
 
     private auth;
 
@@ -24,6 +24,10 @@ class Connection {
 
     constructor(options: CommonOptions, auth: any) {
         this.options = options;
+
+        this.ws = WebSocket.getInstance(this.options);
+
+        this.app = App.getInstance();
 
         this.auth = auth;
 
@@ -39,15 +43,19 @@ class Connection {
     }
 
     async connect() {
-        this.ws.socket = await this.ws.socket.create(this.options);
+        const socket: any = this.ws.getSocket();
 
-        this.handleConnectingEvent()
-            .then(() => this.handleConnectEvent())
-            .then(() => this.handleAuthenticateEvent());
+        if (socket) {
+            await socket.connect();
 
-        this.handleDeauthenticateEvent();
-        this.handleCloseEvent();
-        this.handleErrorEvent();
+            this.handleConnectingEvent()
+                .then(() => this.handleConnectEvent())
+                .then(() => this.handleAuthenticateEvent());
+
+            this.handleDeauthenticateEvent();
+            this.handleCloseEvent();
+            this.handleErrorEvent();
+        }
     }
 
     private handleConnectingEvent(): Promise<void> {
@@ -62,8 +70,10 @@ class Connection {
     }
 
     private async handleConnectEvent(): Promise<void> {
+        const socket: any = this.ws.getSocket();
+
         return new Promise<void>(async (resolve) => {
-            for await (let event of this.ws.socket.listener("connect")) {
+            for await (let event of socket.listener("connect")) {
                 if (event.isAuthenticated) {
                     this.events.emit(
                         "connected",
@@ -82,8 +92,10 @@ class Connection {
     }
 
     private async handleAuthenticateEvent(): Promise<void> {
+        const socket: any = this.ws.getSocket();
+
         return new Promise<void>(async (resolve) => {
-            for await (let event of this.ws.socket.listener("authenticate")) {
+            for await (let event of socket.listener("authenticate")) {
                 this.events.emit(
                     "connected",
                     this.manager.stateChangeObject("connected")
@@ -95,8 +107,10 @@ class Connection {
     }
 
     private async handleDeauthenticateEvent(): Promise<void> {
+        const socket: any = this.ws.getSocket();
+
         return new Promise<void>(async (resolve) => {
-            for await (let event of this.ws.socket.listener("deauthenticate")) {
+            for await (let event of socket.listener("deauthenticate")) {
                 if (this.options.autoAuthenticate) {
                     this.auth.authenticate();
                 }
@@ -107,14 +121,16 @@ class Connection {
     }
 
     private async handleCloseEvent(): Promise<void> {
+        const socket: any = this.ws.getSocket();
+
         return new Promise<void>(async (resolve) => {
-            for await (let event of this.ws.socket.listener("close")) {
+            for await (let event of socket.listener("close")) {
                 this.events.emit(
                     "closed",
                     this.manager.stateChangeObject("closed")
                 );
 
-                this.ws.socket.closeAllListeners();
+                socket.closeAllListeners();
 
                 resolve();
             }
@@ -122,8 +138,10 @@ class Connection {
     }
 
     private async handleErrorEvent(): Promise<void> {
+        const socket: any = this.ws.getSocket();
+
         return new Promise<void>(async (resolve) => {
-            for await (let error of this.ws.socket.listener("error")) {
+            for await (let error of socket.listener("error")) {
                 this.events.emit(
                     "failed",
                     this.manager.stateChangeObject("failed", "failed", error)
@@ -135,8 +153,10 @@ class Connection {
     }
 
     close() {
+        const socket: any = this.ws.getSocket();
+
         this.events.emit("closing", this.manager.stateChangeObject("closing"));
-        this.ws.socket.disconnect();
+        socket.disconnect();
     }
 
     // Overload 1: on(event: ConnectionEvent, listener: ConnectionListener)

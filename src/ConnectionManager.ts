@@ -1,7 +1,7 @@
-import { ConnectionStateChange } from "../types/Connection";
-import { ErrorInfo } from "../types/ErrorInfo";
-import { ConnectionEvent } from "../types/Events";
-import { ConnectionState } from "../types/States";
+import { ConnectionStateChange } from "./types/Connection";
+import { ErrorInfo } from "./types/ErrorInfo";
+import { ConnectionEvent } from "./types/Events";
+import { ConnectionState } from "./types/States";
 
 class ConnectionManager {
     previousState: ConnectionState = "initialized";
