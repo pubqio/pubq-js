@@ -51,10 +51,10 @@ export namespace Pubq {
             return response;
         }
 
-        async generateToken(options: TokenOptions): Promise<any> {
+        async generateToken(options: TokenOptions | undefined): Promise<any> {
             const response = await this.client.post(
                 `/${this.version}/keys/tokens`,
-                { clientId: options.clientId },
+                { clientId: options?.clientId },
                 {
                     headers: {
                         Authorization: this.auth.makeAuthorizationHeader(),
