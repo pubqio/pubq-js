@@ -39,7 +39,9 @@ class App {
             if (authMethod === "Bearer") {
                 const token = getSignedAuthToken(options.authTokenName);
                 const payload = getJwtPayload(token);
-                this.extractAndSetId(payload.sub);
+                if (payload) {
+                    this.extractAndSetId(payload.sub);
+                }
             } else if (
                 authMethod === "Basic" &&
                 typeof options.key !== "undefined"
