@@ -33,7 +33,7 @@ import { Pubq } from "pubq";
 Import from CDN:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@pubq/pubq-js@latest/build/web/pubq.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pubq@latest/build/web/pubq.min.js"></script>
 ```
 
 ## Interacting with PUBQ
