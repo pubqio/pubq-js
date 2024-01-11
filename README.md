@@ -15,25 +15,25 @@ Use any package manager like npm or yarn to install the JavaScript SDK.
 Npm:
 
 ```bash
-npm i @pubq/pubq-js
+npm i pubq
 ```
 
 Yarn:
 
 ```bash
-yarn add @pubq/pubq-js
+yarn add pubq
 ```
 
 Import as ES module:
 
 ```js
-import { Pubq } from "@pubq/pubq-js";
+import { Pubq } from "pubq";
 ```
 
 Import from CDN:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@pubq/pubq-js@latest/bundle/pubq.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@pubq/pubq-js@latest/build/web/pubq.js"></script>
 ```
 
 ## Interacting with PUBQ
