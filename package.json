@@ -6,7 +6,7 @@
     "browser": "build/web/pubq.js",
     "scripts": {
         "build": "rm -rf build/ && npm run build:node && npm run build:web",
-        "build:node": "rm -rf types/ && tsc",
+        "build:node": "rm -rf types/ && tsc && rm -rf build/node/types/",
         "build:web": "npx webpack && npx webpack --mode production"
     },
     "repository": {
