@@ -49,7 +49,10 @@ const realtime = new Pubq.RealTime({ key: "YOUR_API_KEY" });
 Subscribe a channel:
 
 ```js
-let channel = realtime.subscribe("my-channel");
+let channel = realtime.channels.get("my-channel");
+channel.subscribe((message: any) => {
+    console.log({ message });
+});
 ```
 
 Listen for any data publish to receive:
@@ -65,7 +68,7 @@ Listen for any data publish to receive:
 Publish a message:
 
 ```js
-realtime.publish("my-channel", "Hello!");
+channel.publish("Hello!");
 ```
 
 Publish a message with REST interface:
