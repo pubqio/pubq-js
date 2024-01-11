@@ -1,0 +1,34 @@
+import { CommonOptions } from "./types/CommonOptions";
+import { ConnectionEvent } from "./types/Events";
+import { ConnectionListener } from "./types/Listeners";
+import { ConnectionState } from "./types/States";
+declare class Connection {
+    private options;
+    private ws;
+    private app;
+    private auth;
+    private events;
+    private manager;
+    constructor(options: CommonOptions, auth: any);
+    get state(): ConnectionState;
+    connect(): Promise<void>;
+    private handleConnectingEvent;
+    private handleConnectEvent;
+    private handleAuthenticateEvent;
+    private handleDeauthenticateEvent;
+    private handleCloseEvent;
+    private handleErrorEvent;
+    close(): void;
+    on(event: ConnectionEvent, listener: ConnectionListener): void;
+    on(events: ConnectionEvent[], listener: ConnectionListener): void;
+    on(listener: ConnectionListener): void;
+    once(event: ConnectionEvent, listener: ConnectionListener): void;
+    once(listener: ConnectionListener): void;
+    off(event: ConnectionEvent, listener: Function): void;
+    off(events: ConnectionEvent[], listener: Function): void;
+    off(event: ConnectionEvent): void;
+    off(events: ConnectionEvent[]): void;
+    off(listener: Function): void;
+    off(): void;
+}
+export { Connection };
