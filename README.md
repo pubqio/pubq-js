@@ -66,7 +66,9 @@ Publish a message with REST interface:
 ```js
 const rest = new Pubq.REST({ key: "YOUR_API_KEY" });
 
-rest.publish("my-channel", "Hello!");
+let channel = rest.channels.get("my-channel");
+
+channel.publish("Hello!");
 ```
 
 # Development
