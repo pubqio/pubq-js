@@ -1,6 +1,6 @@
 {
     "name": "pubq",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "description": "PUBQ JavaScript SDK",
     "main": "build/node/pubq.js",
     "browser": "build/browser/pubq.js",
