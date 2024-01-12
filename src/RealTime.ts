@@ -3,7 +3,7 @@ import { DefaultCommonOptions } from "./defaults/DefaultCommonOptions";
 import { DefaultPrivateOptions } from "./defaults/DefaultPrivateOptions";
 import { Auth } from "./Auth";
 import { Connection } from "./Connection";
-import { Channels } from "./Channels";
+import { RealTimeChannels } from "./RealTimeChannels";
 
 export namespace Pubq {
     export class RealTime {
@@ -26,7 +26,7 @@ export namespace Pubq {
 
             this.connection = new Connection(this.options, this.auth);
 
-            this.channels = new Channels(this.options);
+            this.channels = new RealTimeChannels(this.options);
         }
     }
 }

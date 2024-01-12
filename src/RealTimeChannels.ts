@@ -10,7 +10,7 @@ import { CommonOptions } from "./types/CommonOptions";
 
 var EventEmitter = require("eventemitter3");
 
-class Channels {
+class RealTimeChannels {
     private options: CommonOptions;
 
     private ws;
@@ -283,4 +283,4 @@ class Channels {
     }
 }
 
-export { Channels };
+export { RealTimeChannels };
