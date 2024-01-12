@@ -3,7 +3,7 @@
     "version": "1.0.2",
     "description": "PUBQ JavaScript SDK",
     "main": "build/node/pubq.js",
-    "browser": "build/web/pubq.js",
+    "browser": "build/browser/pubq.js",
     "scripts": {
         "build": "rm -rf build/ && npm run build:node && npm run build:web",
         "build:node": "rm -rf types/ && tsc && rm -rf build/node/types/",

@@ -8,7 +8,7 @@ module.exports = (env, argv) => {
             pubq: "./src/pubq.ts",
         },
         output: {
-            path: path.resolve(__dirname, "build/web"),
+            path: path.resolve(__dirname, "build/browser"),
             filename: isProduction ? "pubq.min.js" : "pubq.js",
             library: "PUBQ",
             libraryTarget: "umd",
