@@ -26,8 +26,11 @@ class RESTChannels {
         else if (Array.isArray(arg1) && typeof arg2 === "undefined") {
             // Overload 3
         }
-        else {
-            // Overload 4
+        else if (Array.isArray(arg1) && typeof arg2 === "undefined") {
+            // Overload 6
+        }
+        else if (typeof arg2 === "undefined") {
+            // Overload 5
             const response = await this.client.post(`/${this.version}/channels/${this.channel}/messages`, {
                 data: arg1,
             }, {
@@ -35,6 +38,9 @@ class RESTChannels {
                     Authorization: this.auth.makeAuthorizationHeader(),
                 },
             });
+        }
+        else {
+            // Overload 4
         }
     }
 }
