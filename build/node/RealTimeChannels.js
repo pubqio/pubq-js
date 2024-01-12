@@ -4,7 +4,7 @@ import { WebSocket } from "./WebSocket";
 import { ChannelManager } from "./ChannelManager";
 import { Message } from "./Message";
 var EventEmitter = require("eventemitter3");
-class Channels {
+class RealTimeChannels {
     options;
     ws;
     app;
@@ -174,4 +174,4 @@ class Channels {
         }
     }
 }
-export { Channels };
+export { RealTimeChannels };

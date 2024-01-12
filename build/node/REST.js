@@ -1,6 +1,7 @@
 import { DefaultCommonOptions } from "./defaults/DefaultCommonOptions";
 import { Http } from "./Http";
 import { Auth } from "./Auth";
+import { RESTChannels } from "./RESTChannels";
 export var Pubq;
 (function (Pubq) {
     class REST {
@@ -9,6 +10,7 @@ export var Pubq;
         client;
         version = "v1";
         auth;
+        channels;
         constructor(options, auth) {
             this.options = { ...DefaultCommonOptions, ...options };
             this.http = new Http();
@@ -19,20 +21,10 @@ export var Pubq;
             else {
                 this.auth = auth;
             }
+            this.channels = new RESTChannels(this.options, this.auth);
             if (this.options.autoRefreshToken) {
                 this.auth.startRefreshTokenInterval();
             }
-        }
-        async publish(channel, data) {
-            const response = await this.client.post(`/${this.version}/channels/messages`, {
-                channel,
-                data,
-            }, {
-                headers: {
-                    Authorization: this.auth.makeAuthorizationHeader(),
-                },
-            });
-            return response;
         }
         async generateToken(options) {
             const response = await this.client.post(`/${this.version}/keys/tokens`, { clientId: options?.clientId }, {

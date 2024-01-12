@@ -2,7 +2,7 @@ import { ChannelEvent } from "./types/Events";
 import { ChannelListener, MessageListener } from "./types/Listeners";
 import { ChannelState } from "./types/States";
 import { CommonOptions } from "./types/CommonOptions";
-declare class Channels {
+declare class RealTimeChannels {
     private options;
     private ws;
     private app;
@@ -37,4 +37,4 @@ declare class Channels {
     off(listener: Function): void;
     off(): void;
 }
-export { Channels };
+export { RealTimeChannels };
