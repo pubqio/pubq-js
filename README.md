@@ -46,23 +46,13 @@ Connect to PUBQ:
 const realtime = new Pubq.RealTime({ key: "YOUR_API_KEY" });
 ```
 
-Subscribe a channel:
+Subscribe to a channel and listen for any data publishing to receive:
 
 ```js
 let channel = realtime.channels.get("my-channel");
 channel.subscribe((message: any) => {
     console.log({ message });
 });
-```
-
-Listen for any data publish to receive:
-
-```js
-(async () => {
-    for await (let data of channel) {
-        console.log({ data });
-    }
-})();
 ```
 
 Publish a message:
