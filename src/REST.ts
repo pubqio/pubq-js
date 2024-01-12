@@ -36,9 +36,8 @@ export namespace Pubq {
 
         async publish(channel: string, data: string | any[]): Promise<any> {
             const response = await this.client.post(
-                `/${this.version}/channels/messages`,
+                `/${this.version}/channels/${channel}/messages`,
                 {
-                    channel,
                     data,
                 },
                 {
