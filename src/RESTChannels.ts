@@ -44,6 +44,12 @@ class RESTChannels {
     // Overload 4: publish(data: any, listener: ErrorListener)
     publish(data: any, listener: ErrorListener): void;
 
+    // Overload 5: publish(data: any)
+    publish(data: any): void;
+
+    // Overload 6: publish(messages: any[])
+    publish(messages: any[]): void;
+
     async publish(
         arg1: string | string[] | any | any[],
         arg2?: any | any[] | ErrorListener,
@@ -55,8 +61,10 @@ class RESTChannels {
             // Overload 2
         } else if (Array.isArray(arg1) && typeof arg2 === "undefined") {
             // Overload 3
-        } else {
-            // Overload 4
+        } else if (Array.isArray(arg1) && typeof arg2 === "undefined") {
+            // Overload 6
+        } else if (typeof arg2 === "undefined") {
+            // Overload 5
             const response = await this.client.post(
                 `/${this.version}/channels/${this.channel}/messages`,
                 {
@@ -68,6 +76,8 @@ class RESTChannels {
                     },
                 }
             );
+        } else {
+            // Overload 4
         }
     }
 }

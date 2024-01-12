@@ -14,5 +14,7 @@ declare class RESTChannels {
     publish(events: string[], data: any, listener: ErrorListener): void;
     publish(messages: any[], listener: ErrorListener): void;
     publish(data: any, listener: ErrorListener): void;
+    publish(data: any): void;
+    publish(messages: any[]): void;
 }
 export { RESTChannels };
