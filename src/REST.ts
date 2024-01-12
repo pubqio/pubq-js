@@ -3,6 +3,7 @@ import { DefaultCommonOptions } from "./defaults/DefaultCommonOptions";
 import { Http } from "./Http";
 import { Auth } from "./Auth";
 import { TokenOptions } from "./types/TokenOptions";
+import { RESTChannels } from "./RESTChannels";
 
 export namespace Pubq {
     export class REST {
@@ -15,6 +16,8 @@ export namespace Pubq {
         private version = "v1";
 
         public auth;
+
+        public channels;
 
         constructor(options: Partial<CommonOptions>, auth?: Auth) {
             this.options = { ...DefaultCommonOptions, ...options };
@@ -29,25 +32,11 @@ export namespace Pubq {
                 this.auth = auth;
             }
 
+            this.channels = new RESTChannels(this.options, this.auth);
+
             if (this.options.autoRefreshToken) {
                 this.auth.startRefreshTokenInterval();
             }
-        }
-
-        async publish(channel: string, data: string | any[]): Promise<any> {
-            const response = await this.client.post(
-                `/${this.version}/channels/${channel}/messages`,
-                {
-                    data,
-                },
-                {
-                    headers: {
-                        Authorization: this.auth.makeAuthorizationHeader(),
-                    },
-                }
-            );
-
-            return response;
         }
 
         async generateToken(options: TokenOptions | undefined): Promise<any> {
