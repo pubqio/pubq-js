@@ -1,11 +1,8 @@
 import { Auth } from "./Auth";
 import { Http } from "./Http";
-import { CommonOptions } from "./types/CommonOptions";
 import { ErrorListener } from "./types/Listeners";
 
 class RESTChannels {
-    private options: CommonOptions;
-
     private http;
 
     private client;
@@ -16,9 +13,7 @@ class RESTChannels {
 
     private channel: any = null;
 
-    constructor(options: CommonOptions, auth: Auth) {
-        this.options = options;
-
+    constructor(auth: Auth) {
         this.http = new Http();
 
         this.client = this.http.getClient();
