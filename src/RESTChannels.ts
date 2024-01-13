@@ -57,15 +57,19 @@ class RESTChannels {
     ) {
         if (typeof arg1 === "string" && typeof arg3 === "function") {
             // Overload 1
-        } else if (Array.isArray(arg1) && typeof arg2 !== "undefined") {
+        } else if (
+            Array.isArray(arg1) &&
+            typeof arg2 !== "undefined" &&
+            typeof arg3 === "function"
+        ) {
             // Overload 2
-        } else if (Array.isArray(arg1) && typeof arg2 === "undefined") {
+        } else if (Array.isArray(arg1) && typeof arg2 === "function") {
             // Overload 3
         } else if (Array.isArray(arg1) && typeof arg2 === "undefined") {
             // Overload 6
         } else if (typeof arg2 === "undefined") {
             // Overload 5
-            const response = await this.client.post(
+            await this.client.post(
                 `/${this.version}/channels/${this.channel}/messages`,
                 {
                     data: arg1,
