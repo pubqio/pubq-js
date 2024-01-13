@@ -1,13 +1,11 @@
 import { Http } from "./Http";
 class RESTChannels {
-    options;
     http;
     client;
     version = "v1";
     auth;
     channel = null;
-    constructor(options, auth) {
-        this.options = options;
+    constructor(auth) {
         this.http = new Http();
         this.client = this.http.getClient();
         this.auth = auth;
@@ -20,10 +18,12 @@ class RESTChannels {
         if (typeof arg1 === "string" && typeof arg3 === "function") {
             // Overload 1
         }
-        else if (Array.isArray(arg1) && typeof arg2 !== "undefined") {
+        else if (Array.isArray(arg1) &&
+            typeof arg2 !== "undefined" &&
+            typeof arg3 === "function") {
             // Overload 2
         }
-        else if (Array.isArray(arg1) && typeof arg2 === "undefined") {
+        else if (Array.isArray(arg1) && typeof arg2 === "function") {
             // Overload 3
         }
         else if (Array.isArray(arg1) && typeof arg2 === "undefined") {
@@ -31,7 +31,7 @@ class RESTChannels {
         }
         else if (typeof arg2 === "undefined") {
             // Overload 5
-            const response = await this.client.post(`/${this.version}/channels/${this.channel}/messages`, {
+            await this.client.post(`/${this.version}/channels/${this.channel}/messages`, {
                 data: arg1,
             }, {
                 headers: {

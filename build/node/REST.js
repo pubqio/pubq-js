@@ -21,7 +21,7 @@ export var Pubq;
             else {
                 this.auth = auth;
             }
-            this.channels = new RESTChannels(this.options, this.auth);
+            this.channels = new RESTChannels(this.auth);
             if (this.options.autoRefreshToken) {
                 this.auth.startRefreshTokenInterval();
             }
