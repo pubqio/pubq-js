@@ -21,7 +21,7 @@ class App {
         return this.id;
     }
 
-    setId(id: string) {
+    setId(id: string | undefined) {
         this.id = id;
     }
 
@@ -49,6 +49,10 @@ class App {
                 this.extractAndSetId(options.key);
             }
         }
+    }
+
+    destroy() {
+        this.setId(undefined);
     }
 }
 
