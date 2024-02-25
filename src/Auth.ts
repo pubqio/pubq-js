@@ -73,32 +73,36 @@ class Auth {
         throw new Error("Auth method has not been specified.");
     }
 
-    isAuthenticated() {
-        return this.ws.socket.isAuthenticated();
-    }
-
     basicAuth() {
+        const socket: any = this.ws.getSocket();
         const credentials: Record<string, any> = {};
 
         credentials.key = this.getKey();
 
-        this.ws.socket.invoke("#basicAuth", credentials);
+        socket.invoke("#basicAuth", credentials);
     }
 
     async authenticate(body: object = {}, headers: object = {}) {
+        if (!this.ws) {
+            this.ws = WebSocket.getInstance();
+        }
+
+        const socket: any = this.ws.getSocket();
         const authMethod = this.getAuthMethod();
 
         if (authMethod === "Basic") {
             this.basicAuth();
         } else if (authMethod === "Bearer") {
             const tokenData = await this.requestToken();
-            this.ws.socket.authenticate(tokenData.token);
+            socket.authenticate(tokenData.token);
         }
     }
 
     deauthenticate() {
-        // this.requestRevoke();
-        return this.ws.socket.deauthenticate();
+        const socket: any = this.ws.getSocket();
+
+        this.requestRevoke();
+        socket.deauthenticate();
     }
 
     async requestToken() {
@@ -211,6 +215,10 @@ class Auth {
         if (this.refreshTokenIntervalId) {
             clearInterval(this.refreshTokenIntervalId);
         }
+    }
+
+    destroy() {
+        this.stopRefreshTokenInterval();
     }
 }
 
