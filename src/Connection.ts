@@ -42,6 +42,11 @@ class Connection {
         return this.manager.currentState;
     }
 
+    get id(): string | undefined {
+        const socket: any = this.ws.getSocket();
+        return socket.id;
+    }
+
     async connect() {
         const socket: any = this.ws.getSocket();
 
@@ -256,6 +261,16 @@ class Connection {
         } else {
             throw new Error("Invalid arguments");
         }
+    }
+
+    destroy() {
+        const socket: any = this.ws.getSocket();
+
+        socket.disconnect();
+        socket.killAllListeners();
+        socket.killAllReceivers();
+        socket.deauthenticate();
+        this.off();
     }
 }
 
