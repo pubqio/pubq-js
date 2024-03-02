@@ -36,5 +36,6 @@ declare class RealTimeChannels {
     off(events: ChannelEvent[]): void;
     off(listener: Function): void;
     off(): void;
+    destroy(): void;
 }
 export { RealTimeChannels };

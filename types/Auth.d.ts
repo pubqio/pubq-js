@@ -11,14 +11,14 @@ declare class Auth {
     getKey(): string;
     getKeyBase64(): string;
     makeAuthorizationHeader(): string;
-    isAuthenticated(): any;
     basicAuth(): void;
     authenticate(body?: object, headers?: object): Promise<void>;
-    deauthenticate(): any;
+    deauthenticate(): void;
     requestToken(): Promise<any>;
     requestRefresh(): Promise<any>;
     requestRevoke(): Promise<any>;
     startRefreshTokenInterval(): void;
     stopRefreshTokenInterval(): void;
+    destroy(): void;
 }
 export { Auth };

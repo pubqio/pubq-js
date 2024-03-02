@@ -3,6 +3,7 @@ import { DefaultPrivateOptions } from "./defaults/DefaultPrivateOptions";
 import { Auth } from "./Auth";
 import { Connection } from "./Connection";
 import { RealTimeChannels } from "./RealTimeChannels";
+import { App } from "./App";
 export var Pubq;
 (function (Pubq) {
     class RealTime {
@@ -10,6 +11,7 @@ export var Pubq;
         auth;
         connection;
         channels;
+        app;
         constructor(options) {
             this.options = {
                 ...DefaultCommonOptions,
@@ -19,6 +21,23 @@ export var Pubq;
             this.auth = new Auth(this.options);
             this.connection = new Connection(this.options, this.auth);
             this.channels = new RealTimeChannels(this.options);
+            this.app = App.getInstance();
+        }
+        updateOptions(options) {
+            this.options = {
+                ...this.options,
+                ...options,
+            };
+            this.auth = new Auth(this.options);
+            this.connection = new Connection(this.options, this.auth);
+            this.channels = new RealTimeChannels(this.options);
+            this.app = App.getInstance();
+        }
+        destroy() {
+            this.auth.destroy();
+            this.connection.destroy();
+            this.channels.destroy();
+            this.app.destroy();
         }
     }
     Pubq.RealTime = RealTime;

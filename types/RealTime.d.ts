@@ -1,13 +1,13 @@
 import { CommonOptions } from "./types/CommonOptions";
-import { Auth } from "./Auth";
-import { Connection } from "./Connection";
-import { RealTimeChannels } from "./RealTimeChannels";
 export declare namespace Pubq {
     class RealTime {
-        private options;
-        auth: Auth;
-        connection: Connection;
-        channels: RealTimeChannels;
+        options: CommonOptions;
+        auth: any;
+        connection: any;
+        channels: any;
+        app: any;
         constructor(options: Partial<CommonOptions>);
+        updateOptions(options: Partial<CommonOptions>): void;
+        destroy(): void;
     }
 }

@@ -36,5 +36,8 @@ class App {
             }
         }
     }
+    destroy() {
+        this.setId(undefined);
+    }
 }
 export { App };

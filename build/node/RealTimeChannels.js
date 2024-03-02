@@ -173,5 +173,13 @@ class RealTimeChannels {
             throw new Error("Invalid arguments");
         }
     }
+    destroy() {
+        if (this.channel) {
+            this.channel.unsubscribe();
+            this.channel.killAllListeners();
+            this.channel.kill();
+        }
+        this.off();
+    }
 }
 export { RealTimeChannels };

@@ -6,8 +6,9 @@ declare class App {
     constructor();
     static getInstance(): App;
     getId(): string | undefined;
-    setId(id: string): void;
+    setId(id: string | undefined): void;
     extractAndSetId(publicKey: string): string | undefined;
     handleAppId(options: CommonOptions, auth: Auth): void;
+    destroy(): void;
 }
 export { App };

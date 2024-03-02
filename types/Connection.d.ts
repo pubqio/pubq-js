@@ -11,6 +11,7 @@ declare class Connection {
     private manager;
     constructor(options: CommonOptions, auth: any);
     get state(): ConnectionState;
+    get id(): string | undefined;
     connect(): Promise<void>;
     private handleConnectingEvent;
     private handleConnectEvent;
@@ -30,5 +31,6 @@ declare class Connection {
     off(events: ConnectionEvent[]): void;
     off(listener: Function): void;
     off(): void;
+    destroy(): void;
 }
 export { Connection };

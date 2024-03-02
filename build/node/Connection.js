@@ -23,6 +23,10 @@ class Connection {
     get state() {
         return this.manager.currentState;
     }
+    get id() {
+        const socket = this.ws.getSocket();
+        return socket.id;
+    }
     async connect() {
         const socket = this.ws.getSocket();
         if (socket) {
@@ -167,6 +171,14 @@ class Connection {
         else {
             throw new Error("Invalid arguments");
         }
+    }
+    destroy() {
+        const socket = this.ws.getSocket();
+        socket.disconnect();
+        socket.killAllListeners();
+        socket.killAllReceivers();
+        socket.deauthenticate();
+        this.off();
     }
 }
 export { Connection };
