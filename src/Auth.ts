@@ -5,6 +5,8 @@ import { Http } from "./Http";
 import { WebSocket } from "./WebSocket";
 
 class Auth {
+    private static instance: Auth;
+
     private options: CommonOptions;
 
     private http;
@@ -21,6 +23,14 @@ class Auth {
         this.http = new Http();
 
         this.client = this.http.getClient();
+    }
+
+    public static getInstance(options?: CommonOptions): Auth {
+        if (!this.instance && options) {
+            this.instance = new Auth(options);
+        }
+
+        return this.instance;
     }
 
     getAuthMethod() {

@@ -3,6 +3,7 @@ import { getRemainingSeconds } from "./utils/time";
 import { Http } from "./Http";
 import { WebSocket } from "./WebSocket";
 class Auth {
+    static instance;
     options;
     http;
     client;
@@ -12,6 +13,12 @@ class Auth {
         this.options = options;
         this.http = new Http();
         this.client = this.http.getClient();
+    }
+    static getInstance(options) {
+        if (!this.instance && options) {
+            this.instance = new Auth(options);
+        }
+        return this.instance;
     }
     getAuthMethod() {
         if (typeof this.options.authUrl !== "undefined" &&

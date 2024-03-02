@@ -25,9 +25,9 @@ export namespace Pubq {
                 ...DefaultPrivateOptions,
             };
 
-            this.auth = new Auth(this.options);
+            this.auth = Auth.getInstance();
 
-            this.connection = new Connection(this.options, this.auth);
+            this.connection = new Connection(this.options);
 
             this.channels = new RealTimeChannels(this.options);
 
@@ -40,9 +40,9 @@ export namespace Pubq {
                 ...options,
             };
 
-            this.auth = new Auth(this.options);
+            this.auth = Auth.getInstance();
 
-            this.connection = new Connection(this.options, this.auth);
+            this.connection = new Connection(this.options);
 
             this.channels = new RealTimeChannels(this.options);
 

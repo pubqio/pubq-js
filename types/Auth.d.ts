@@ -1,11 +1,13 @@
 import { CommonOptions } from "./types/CommonOptions";
 declare class Auth {
+    private static instance;
     private options;
     private http;
     private client;
     private ws;
     private refreshTokenIntervalId;
     constructor(options: CommonOptions);
+    static getInstance(options?: CommonOptions): Auth;
     getAuthMethod(): false | "Bearer" | "Basic";
     private getKeyOrToken;
     getKey(): string;

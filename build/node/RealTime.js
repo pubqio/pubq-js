@@ -18,8 +18,8 @@ export var Pubq;
                 ...options,
                 ...DefaultPrivateOptions,
             };
-            this.auth = new Auth(this.options);
-            this.connection = new Connection(this.options, this.auth);
+            this.auth = Auth.getInstance();
+            this.connection = new Connection(this.options);
             this.channels = new RealTimeChannels(this.options);
             this.app = App.getInstance();
         }
@@ -28,8 +28,8 @@ export var Pubq;
                 ...this.options,
                 ...options,
             };
-            this.auth = new Auth(this.options);
-            this.connection = new Connection(this.options, this.auth);
+            this.auth = Auth.getInstance();
+            this.connection = new Connection(this.options);
             this.channels = new RealTimeChannels(this.options);
             this.app = App.getInstance();
         }

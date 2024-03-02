@@ -9,7 +9,7 @@ declare class Connection {
     private auth;
     private events;
     private manager;
-    constructor(options: CommonOptions, auth: any);
+    constructor(options: CommonOptions);
     get state(): ConnectionState;
     get id(): string | undefined;
     connect(): Promise<void>;

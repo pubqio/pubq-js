@@ -27,7 +27,7 @@ export namespace Pubq {
             this.client = this.http.getClient();
 
             if (typeof auth === "undefined") {
-                this.auth = new Auth(this.options);
+                this.auth = Auth.getInstance(this.options);
             } else {
                 this.auth = auth;
             }
