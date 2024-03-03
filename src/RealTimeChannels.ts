@@ -95,6 +95,7 @@ class RealTimeChannels {
             for await (let data of this.channel) {
                 const msg = new Message({
                     data: data,
+                    channel: this.channel.name,
                 }).toObject();
                 listener(msg);
 

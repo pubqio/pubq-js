@@ -4,6 +4,7 @@ declare class Message {
     clientId?: string;
     connectionId?: string;
     data?: any;
+    channel?: string;
     constructor(msg: MessageObject);
     toObject(): Record<string, any>;
 }

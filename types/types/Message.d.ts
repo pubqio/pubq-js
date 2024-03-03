@@ -3,4 +3,5 @@ export interface MessageObject {
     clientId?: string;
     connectionId?: string;
     data?: any;
+    channel?: string;
 }

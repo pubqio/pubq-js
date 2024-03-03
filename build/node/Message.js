@@ -3,11 +3,13 @@ class Message {
     clientId;
     connectionId;
     data;
+    channel;
     constructor(msg) {
         this.id = msg.id;
         this.clientId = msg.clientId;
         this.connectionId = msg.connectionId;
         this.data = msg.data;
+        this.channel = msg.channel;
     }
     toObject() {
         const obj = {};
@@ -22,6 +24,9 @@ class Message {
         }
         if (this.data !== undefined) {
             obj.data = this.data;
+        }
+        if (this.channel !== undefined) {
+            obj.channel = this.channel;
         }
         return obj;
     }

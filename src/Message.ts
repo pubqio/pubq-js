@@ -5,12 +5,14 @@ class Message {
     clientId?: string;
     connectionId?: string;
     data?: any;
+    channel?: string;
 
     constructor(msg: MessageObject) {
         this.id = msg.id;
         this.clientId = msg.clientId;
         this.connectionId = msg.connectionId;
         this.data = msg.data;
+        this.channel = msg.channel;
     }
 
     toObject() {
@@ -27,6 +29,9 @@ class Message {
         }
         if (this.data !== undefined) {
             obj.data = this.data;
+        }
+        if (this.channel !== undefined) {
+            obj.channel = this.channel;
         }
 
         return obj;
