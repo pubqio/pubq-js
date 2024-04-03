@@ -10,6 +10,5 @@
         "declarationDir": "./types",
         "baseUrl": "./src",
         "outDir": "./build/node"
-    },
-    "include": ["src/**/*", "pubq.d.ts"]
+    }
 }
