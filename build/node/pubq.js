@@ -1,5 +1,6 @@
 import * as RealTimeModule from "./RealTime";
 import * as RESTModule from "./REST";
+// Define the namespace Pubq with its interfaces
 export var Pubq;
 (function (Pubq) {
     Pubq.RealTime = RealTimeModule.Pubq.RealTime;
