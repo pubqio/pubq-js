@@ -9,4 +9,3 @@ declare global {
         Pubq: typeof Pubq;
     }
 }
-declare module "pubq";

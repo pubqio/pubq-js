@@ -17,6 +17,3 @@ declare global {
 if (typeof window !== "undefined") {
     window.Pubq = Pubq;
 }
-
-// Declare the module 'pubq'
-declare module "pubq";

@@ -11,5 +11,5 @@
         "baseUrl": "./src",
         "outDir": "./build/node"
     },
-    "include": ["src/**/*"]
+    "include": ["src/**/*", "pubq.d.ts"]
 }
