@@ -6,9 +6,13 @@
         "forceConsistentCasingInFileNames": true,
         "esModuleInterop": true,
         "moduleResolution": "node",
+        "resolveJsonModule": true,
+        "importHelpers": true,
         "declaration": true,
         "declarationDir": "./types",
         "baseUrl": "./src",
         "outDir": "./build/node"
-    }
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules"]
 }
