@@ -1,4 +1,3 @@
-import { CommonOptions } from "./types/CommonOptions";
 declare class Auth {
     private static instance;
     private options;
@@ -6,8 +5,8 @@ declare class Auth {
     private client;
     private ws;
     private refreshTokenIntervalId;
-    constructor(options: CommonOptions);
-    static getInstance(options?: CommonOptions): Auth;
+    constructor();
+    static getInstance(): Auth;
     getAuthMethod(): false | "Bearer" | "Basic";
     private getKeyOrToken;
     getKey(): string;

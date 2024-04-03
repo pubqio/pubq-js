@@ -2,6 +2,7 @@ import { getJwtPayload, getSignedAuthToken } from "./utils/jwt";
 import { getRemainingSeconds } from "./utils/time";
 import { Http } from "./Http";
 import { WebSocket } from "./WebSocket";
+import { OptionsManager } from "./OptionsManager";
 class Auth {
     static instance;
     options;
@@ -9,14 +10,14 @@ class Auth {
     client;
     ws = WebSocket.getInstance();
     refreshTokenIntervalId;
-    constructor(options) {
-        this.options = options;
+    constructor() {
+        this.options = OptionsManager.getInstance().get();
         this.http = new Http();
         this.client = this.http.getClient();
     }
-    static getInstance(options) {
-        if (!this.instance && options) {
-            this.instance = new Auth(options);
+    static getInstance() {
+        if (!this.instance) {
+            this.instance = new Auth();
         }
         return this.instance;
     }
@@ -164,6 +165,8 @@ class Auth {
     }
     destroy() {
         this.stopRefreshTokenInterval();
+        localStorage.removeItem(this.options.authTokenName);
+        Auth.instance = undefined;
     }
 }
 export { Auth };

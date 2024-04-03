@@ -1,42 +1,38 @@
-import { DefaultCommonOptions } from "./defaults/DefaultCommonOptions";
-import { DefaultPrivateOptions } from "./defaults/DefaultPrivateOptions";
 import { Auth } from "./Auth";
 import { Connection } from "./Connection";
-import { RealTimeChannels } from "./RealTimeChannels";
 import { App } from "./App";
+import { OptionsManager } from "./OptionsManager";
+import { Channels } from "./Channels";
 export var Pubq;
 (function (Pubq) {
     class RealTime {
+        optionsManager;
         options;
         auth;
         connection;
         channels;
         app;
         constructor(options) {
-            this.options = {
-                ...DefaultCommonOptions,
-                ...options,
-                ...DefaultPrivateOptions,
-            };
+            this.optionsManager = OptionsManager.getInstance(options);
+            this.options = this.optionsManager.get();
             this.auth = Auth.getInstance();
-            this.connection = new Connection(this.options);
-            this.channels = new RealTimeChannels(this.options);
+            this.connection = new Connection();
+            this.channels = new Channels(this.constructor.name);
             this.app = App.getInstance();
         }
         updateOptions(options) {
-            this.options = {
-                ...this.options,
-                ...options,
-            };
+            this.destroy();
+            this.optionsManager = OptionsManager.getInstance(options);
+            this.options = this.optionsManager.get();
             this.auth = Auth.getInstance();
-            this.connection = new Connection(this.options);
-            this.channels = new RealTimeChannels(this.options);
+            this.connection = new Connection();
+            this.channels = new Channels(this.constructor.name);
             this.app = App.getInstance();
         }
         destroy() {
+            OptionsManager.destroy();
             this.auth.destroy();
             this.connection.destroy();
-            this.channels.destroy();
             this.app.destroy();
         }
     }

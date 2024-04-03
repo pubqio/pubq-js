@@ -1,4 +1,3 @@
-import { CommonOptions } from "./types/CommonOptions";
 import { ConnectionEvent } from "./types/Events";
 import { ConnectionListener } from "./types/Listeners";
 import { ConnectionState } from "./types/States";
@@ -9,7 +8,7 @@ declare class Connection {
     private auth;
     private events;
     private manager;
-    constructor(options: CommonOptions);
+    constructor();
     get state(): ConnectionState;
     get id(): string | undefined;
     connect(): Promise<void>;

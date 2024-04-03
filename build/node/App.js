@@ -1,8 +1,16 @@
+import { OptionsManager } from "./OptionsManager";
+import { Auth } from "./Auth";
 import { getJwtPayload, getSignedAuthToken } from "./utils/jwt";
 class App {
     static instance;
+    options;
     id;
-    constructor() { }
+    auth;
+    constructor() {
+        this.options = OptionsManager.getInstance().get();
+        this.auth = Auth.getInstance();
+        this.handleAppId();
+    }
     static getInstance() {
         if (!this.instance) {
             this.instance = new App();
@@ -20,24 +28,25 @@ class App {
         this.setId(appId);
         return this.id;
     }
-    handleAppId(options, auth) {
+    handleAppId() {
         if (typeof this.getId() === "undefined") {
-            const authMethod = auth.getAuthMethod();
+            const authMethod = this.auth.getAuthMethod();
             if (authMethod === "Bearer") {
-                const token = getSignedAuthToken(options.authTokenName);
+                const token = getSignedAuthToken(this.options.authTokenName);
                 const payload = getJwtPayload(token);
                 if (payload) {
                     this.extractAndSetId(payload.sub);
                 }
             }
             else if (authMethod === "Basic" &&
-                typeof options.key !== "undefined") {
-                this.extractAndSetId(options.key);
+                typeof this.options.key !== "undefined") {
+                this.extractAndSetId(this.options.key);
             }
         }
     }
     destroy() {
         this.setId(undefined);
+        App.instance = undefined;
     }
 }
 export { App };

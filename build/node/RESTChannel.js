@@ -1,18 +1,16 @@
+import { Auth } from "./Auth";
 import { Http } from "./Http";
-class RESTChannels {
+class RESTChannel {
     http;
     client;
     version = "v1";
     auth;
-    channel = null;
-    constructor(auth) {
+    channelName = null;
+    constructor(channelName) {
         this.http = new Http();
         this.client = this.http.getClient();
-        this.auth = auth;
-    }
-    get(channelName) {
-        this.channel = channelName;
-        return this;
+        this.auth = Auth.getInstance();
+        this.channelName = channelName;
     }
     async publish(arg1, arg2, arg3) {
         if (typeof arg1 === "string" && typeof arg3 === "function") {
@@ -31,7 +29,7 @@ class RESTChannels {
         }
         else if (typeof arg2 === "undefined") {
             // Overload 5
-            await this.client.post(`/${this.version}/channels/${this.channel}/messages`, {
+            await this.client.post(`/${this.version}/channels/${this.channelName}/messages`, {
                 data: arg1,
             }, {
                 headers: {
@@ -44,4 +42,4 @@ class RESTChannels {
         }
     }
 }
-export { RESTChannels };
+export { RESTChannel };

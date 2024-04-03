@@ -3,29 +3,32 @@ import { DefaultChannelEvents } from "./defaults/DefaultChannelEvents";
 import { WebSocket } from "./WebSocket";
 import { ChannelManager } from "./ChannelManager";
 import { Message } from "./Message";
+import { OptionsManager } from "./OptionsManager";
 var EventEmitter = require("eventemitter3");
-class RealTimeChannels {
+class RealTimeChannel {
     options;
     ws;
     app;
     channel = null;
+    channelName = null;
     events = new EventEmitter();
     manager = new ChannelManager();
-    constructor(options) {
-        this.options = options;
+    constructor(channelName) {
+        this.options = OptionsManager.getInstance().get();
         this.ws = WebSocket.getInstance();
         this.app = App.getInstance();
+        this.channelName = channelName;
+        this.init();
     }
     get state() {
         return this.manager.currentState;
     }
-    get(channelName) {
+    init() {
         const socket = this.ws.getSocket();
-        this.channel = socket.channel(`${this.app.getId()}/${channelName}`);
+        this.channel = socket.channel(`${this.app.getId()}/${this.channelName}`);
         this.handleSubscribeEvent();
         this.handleUnsubscribeEvent();
         this.handleSubscribeFailEvent();
-        return this;
     }
     async handleSubscribeEvent() {
         return new Promise(async (resolve) => {
@@ -68,6 +71,15 @@ class RealTimeChannels {
         if (!this.channel) {
             throw new Error("Channel is not specified.");
         }
+        const socket = this.ws.getSocket();
+        if (socket.isSubscribed(`${this.app.getId()}/${this.channelName}`, true)) {
+            const error = {
+                code: 201,
+                message: "The channel has already been subscribed.",
+            };
+            this.events.emit("failed", this.manager.stateChangeObject("failed", "failed", error));
+            return false;
+        }
         this.events.emit("subscribing", this.manager.stateChangeObject("subscribing"));
         if (typeof arg1 === "string" && typeof arg2 === "function") {
             // Overload 1
@@ -85,6 +97,15 @@ class RealTimeChannels {
         if (!this.channel) {
             throw new Error("Channel is not specified.");
         }
+        const socket = this.ws.getSocket();
+        if (!socket.isSubscribed(`${this.app.getId()}/${this.channelName}`, true)) {
+            const error = {
+                code: 203,
+                message: "Can not unsubscribe from a channel that is not subscribed.",
+            };
+            this.events.emit("failed", this.manager.stateChangeObject("failed", "failed", error));
+            return false;
+        }
         this.events.emit("unsubscribing", this.manager.stateChangeObject("unsubscribing"));
         if (typeof arg1 === "string" && typeof arg2 === "function") {
             // Overload 1
@@ -101,10 +122,14 @@ class RealTimeChannels {
         else if (typeof arg1 === "function" && arg2 === undefined) {
             // Overload 5
         }
-        else if (typeof arg1 === undefined && arg2 === undefined) {
+        else if (arg1 === undefined && arg2 === undefined) {
             // Overload 6
-            this.channel.unsubscribe();
+            socket.unsubscribe(`${this.app.getId()}/${this.channelName}`);
         }
+    }
+    publish(data) {
+        const socket = this.ws.getSocket();
+        socket.transmitPublish(`${this.app.getId()}/${this.channelName}`, data);
     }
     // Implementation of the on method
     on(arg1, arg2) {
@@ -176,11 +201,11 @@ class RealTimeChannels {
     }
     destroy() {
         if (this.channel) {
-            this.channel.unsubscribe();
+            this.unsubscribe();
             this.channel.killAllListeners();
             this.channel.kill();
         }
         this.off();
     }
 }
-export { RealTimeChannels };
+export { RealTimeChannel };

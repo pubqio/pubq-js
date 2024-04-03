@@ -3,6 +3,7 @@ import { DefaultConnectionEvents } from "./defaults/DefaultConnectionEvents";
 import { WebSocket } from "./WebSocket";
 import { ConnectionManager } from "./ConnectionManager";
 import { Auth } from "./Auth";
+import { OptionsManager } from "./OptionsManager";
 var EventEmitter = require("eventemitter3");
 class Connection {
     options;
@@ -11,12 +12,11 @@ class Connection {
     auth;
     events = new EventEmitter();
     manager = new ConnectionManager();
-    constructor(options) {
-        this.options = options;
-        this.ws = WebSocket.getInstance(this.options);
+    constructor() {
+        this.options = OptionsManager.getInstance().get();
+        this.ws = WebSocket.getInstance();
         this.app = App.getInstance();
-        this.auth = Auth.getInstance(this.options);
-        this.app.handleAppId(this.options, this.auth);
+        this.auth = Auth.getInstance();
         if (this.options.autoConnect) {
             this.connect();
         }
@@ -174,11 +174,7 @@ class Connection {
         }
     }
     destroy() {
-        const socket = this.ws.getSocket();
-        socket.disconnect();
-        socket.killAllListeners();
-        socket.killAllReceivers();
-        socket.deauthenticate();
+        this.ws.destroy();
         this.off();
     }
 }

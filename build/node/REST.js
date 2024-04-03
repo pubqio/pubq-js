@@ -1,7 +1,7 @@
-import { DefaultCommonOptions } from "./defaults/DefaultCommonOptions";
 import { Http } from "./Http";
 import { Auth } from "./Auth";
-import { RESTChannels } from "./RESTChannels";
+import { OptionsManager } from "./OptionsManager";
+import { Channels } from "./Channels";
 export var Pubq;
 (function (Pubq) {
     class REST {
@@ -12,16 +12,16 @@ export var Pubq;
         auth;
         channels;
         constructor(options, auth) {
-            this.options = { ...DefaultCommonOptions, ...options };
+            this.options = OptionsManager.getInstance(options).get();
             this.http = new Http();
             this.client = this.http.getClient();
             if (typeof auth === "undefined") {
-                this.auth = Auth.getInstance(this.options);
+                this.auth = Auth.getInstance();
             }
             else {
                 this.auth = auth;
             }
-            this.channels = new RESTChannels(this.auth);
+            this.channels = new Channels(this.constructor.name);
             if (this.options.autoRefreshToken) {
                 this.auth.startRefreshTokenInterval();
             }
