@@ -9,11 +9,6 @@
         "build:node": "rm -rf types/ && tsc && rm -rf build/node/types/",
         "build:web": "npx webpack && npx webpack --mode production"
     },
-    "exports": {
-        ".": {
-            "types": "./pubq.d.ts"
-        }
-    },
     "typings": "./pubq.d.ts",
     "files": [
         "build/**",
