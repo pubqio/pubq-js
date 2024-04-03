@@ -2,7 +2,7 @@ import { Auth } from "./Auth";
 import { Http } from "./Http";
 import { ErrorListener } from "./types/Listeners";
 
-class RESTChannels {
+class RESTChannel {
     private http;
 
     private client;
@@ -11,20 +11,16 @@ class RESTChannels {
 
     private auth;
 
-    private channel: any = null;
+    private channelName: string | null = null;
 
-    constructor(auth: Auth) {
+    constructor(channelName: string) {
         this.http = new Http();
 
         this.client = this.http.getClient();
 
-        this.auth = auth;
-    }
+        this.auth = Auth.getInstance();
 
-    get(channelName: string) {
-        this.channel = channelName;
-
-        return this;
+        this.channelName = channelName;
     }
 
     // Overload 1: publish(event: string, data: any, listener: ErrorListener)
@@ -65,7 +61,7 @@ class RESTChannels {
         } else if (typeof arg2 === "undefined") {
             // Overload 5
             await this.client.post(
-                `/${this.version}/channels/${this.channel}/messages`,
+                `/${this.version}/channels/${this.channelName}/messages`,
                 {
                     data: arg1,
                 },
@@ -81,4 +77,4 @@ class RESTChannels {
     }
 }
 
-export { RESTChannels };
+export { RESTChannel };

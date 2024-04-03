@@ -1,13 +1,11 @@
-import { Auth } from "./Auth";
 import { ErrorListener } from "./types/Listeners";
-declare class RESTChannels {
+declare class RESTChannel {
     private http;
     private client;
     private version;
     private auth;
-    private channel;
-    constructor(auth: Auth);
-    get(channelName: string): this;
+    private channelName;
+    constructor(channelName: string);
     publish(event: string, data: any, listener: ErrorListener): void;
     publish(events: string[], data: any, listener: ErrorListener): void;
     publish(messages: any[], listener: ErrorListener): void;
@@ -15,4 +13,4 @@ declare class RESTChannels {
     publish(data: any): void;
     publish(messages: any[]): void;
 }
-export { RESTChannels };
+export { RESTChannel };

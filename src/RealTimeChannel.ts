@@ -7,10 +7,11 @@ import { WebSocket } from "./WebSocket";
 import { ChannelManager } from "./ChannelManager";
 import { Message } from "./Message";
 import { CommonOptions } from "./types/CommonOptions";
+import { OptionsManager } from "./OptionsManager";
 
 var EventEmitter = require("eventemitter3");
 
-class RealTimeChannels {
+class RealTimeChannel {
     private options: CommonOptions;
 
     private ws;
@@ -19,32 +20,38 @@ class RealTimeChannels {
 
     private channel: any = null;
 
+    private channelName: string | null = null;
+
     private events = new EventEmitter();
 
     private manager = new ChannelManager();
 
-    constructor(options: CommonOptions) {
-        this.options = options;
+    constructor(channelName: string) {
+        this.options = OptionsManager.getInstance().get();
 
         this.ws = WebSocket.getInstance();
 
         this.app = App.getInstance();
+
+        this.channelName = channelName;
+
+        this.init();
     }
 
     get state(): ChannelState {
         return this.manager.currentState;
     }
 
-    get(channelName: string) {
+    private init() {
         const socket: any = this.ws.getSocket();
 
-        this.channel = socket.channel(`${this.app.getId()}/${channelName}`);
+        this.channel = socket.channel(
+            `${this.app.getId()}/${this.channelName}`
+        );
 
         this.handleSubscribeEvent();
         this.handleUnsubscribeEvent();
         this.handleSubscribeFailEvent();
-
-        return this;
     }
 
     private async handleSubscribeEvent(): Promise<void> {
@@ -121,6 +128,23 @@ class RealTimeChannels {
             throw new Error("Channel is not specified.");
         }
 
+        const socket: any = this.ws.getSocket();
+
+        if (
+            socket.isSubscribed(`${this.app.getId()}/${this.channelName}`, true)
+        ) {
+            const error = {
+                code: 201,
+                message: "The channel has already been subscribed.",
+            };
+
+            this.events.emit(
+                "failed",
+                this.manager.stateChangeObject("failed", "failed", error)
+            );
+            return false;
+        }
+
         this.events.emit(
             "subscribing",
             this.manager.stateChangeObject("subscribing")
@@ -163,6 +187,28 @@ class RealTimeChannels {
             throw new Error("Channel is not specified.");
         }
 
+        const socket: any = this.ws.getSocket();
+
+        if (
+            !socket.isSubscribed(
+                `${this.app.getId()}/${this.channelName}`,
+                true
+            )
+        ) {
+            const error = {
+                code: 203,
+                message:
+                    "Can not unsubscribe from a channel that is not subscribed.",
+            };
+
+            this.events.emit(
+                "failed",
+                this.manager.stateChangeObject("failed", "failed", error)
+            );
+
+            return false;
+        }
+
         this.events.emit(
             "unsubscribing",
             this.manager.stateChangeObject("unsubscribing")
@@ -178,10 +224,15 @@ class RealTimeChannels {
             // Overload 4
         } else if (typeof arg1 === "function" && arg2 === undefined) {
             // Overload 5
-        } else if (typeof arg1 === undefined && arg2 === undefined) {
+        } else if (arg1 === undefined && arg2 === undefined) {
             // Overload 6
-            this.channel.unsubscribe();
+            socket.unsubscribe(`${this.app.getId()}/${this.channelName}`);
         }
+    }
+
+    publish(data: any) {
+        const socket: any = this.ws.getSocket();
+        socket.transmitPublish(`${this.app.getId()}/${this.channelName}`, data);
     }
 
     // Overload 1: on(event: ChannelEvent, listener: ChannelListener)
@@ -285,7 +336,7 @@ class RealTimeChannels {
 
     destroy() {
         if (this.channel) {
-            this.channel.unsubscribe();
+            this.unsubscribe();
             this.channel.killAllListeners();
             this.channel.kill();
         }
@@ -293,4 +344,4 @@ class RealTimeChannels {
     }
 }
 
-export { RealTimeChannels };
+export { RealTimeChannel };

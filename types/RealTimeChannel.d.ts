@@ -1,17 +1,17 @@
 import { ChannelEvent } from "./types/Events";
 import { ChannelListener, MessageListener } from "./types/Listeners";
 import { ChannelState } from "./types/States";
-import { CommonOptions } from "./types/CommonOptions";
-declare class RealTimeChannels {
+declare class RealTimeChannel {
     private options;
     private ws;
     private app;
     private channel;
+    private channelName;
     private events;
     private manager;
-    constructor(options: CommonOptions);
+    constructor(channelName: string);
     get state(): ChannelState;
-    get(channelName: string): this;
+    private init;
     private handleSubscribeEvent;
     private handleUnsubscribeEvent;
     private handleSubscribeFailEvent;
@@ -25,6 +25,7 @@ declare class RealTimeChannels {
     unsubscribe(events: string[]): void;
     unsubscribe(listener: MessageListener): void;
     unsubscribe(): void;
+    publish(data: any): void;
     on(event: ChannelEvent, listener: ChannelListener): void;
     on(events: ChannelEvent[], listener: ChannelListener): void;
     on(listener: ChannelListener): void;
@@ -38,4 +39,4 @@ declare class RealTimeChannels {
     off(): void;
     destroy(): void;
 }
-export { RealTimeChannels };
+export { RealTimeChannel };

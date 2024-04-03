@@ -1,9 +1,9 @@
 import { CommonOptions } from "./types/CommonOptions";
-import { DefaultCommonOptions } from "./defaults/DefaultCommonOptions";
 import { Http } from "./Http";
 import { Auth } from "./Auth";
 import { TokenOptions } from "./types/TokenOptions";
-import { RESTChannels } from "./RESTChannels";
+import { OptionsManager } from "./OptionsManager";
+import { Channels } from "./Channels";
 
 export namespace Pubq {
     export class REST {
@@ -19,20 +19,20 @@ export namespace Pubq {
 
         public channels;
 
-        constructor(options: Partial<CommonOptions>, auth?: Auth) {
-            this.options = { ...DefaultCommonOptions, ...options };
+        constructor(options: CommonOptions, auth?: Auth) {
+            this.options = OptionsManager.getInstance(options).get();
 
             this.http = new Http();
 
             this.client = this.http.getClient();
 
             if (typeof auth === "undefined") {
-                this.auth = Auth.getInstance(this.options);
+                this.auth = Auth.getInstance();
             } else {
                 this.auth = auth;
             }
 
-            this.channels = new RESTChannels(this.auth);
+            this.channels = new Channels(this.constructor.name);
 
             if (this.options.autoRefreshToken) {
                 this.auth.startRefreshTokenInterval();
