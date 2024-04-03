@@ -1,3 +1,4 @@
+import { OptionsManager } from "./OptionsManager";
 import { Auth } from "./Auth";
 import { CommonOptions } from "./types/CommonOptions";
 import { getJwtPayload, getSignedAuthToken } from "./utils/jwt";
@@ -5,9 +6,19 @@ import { getJwtPayload, getSignedAuthToken } from "./utils/jwt";
 class App {
     private static instance: App;
 
+    private options: CommonOptions;
+
     private id: string | undefined;
 
-    constructor() {}
+    private auth;
+
+    constructor() {
+        this.options = OptionsManager.getInstance().get();
+
+        this.auth = Auth.getInstance();
+
+        this.handleAppId();
+    }
 
     public static getInstance(): App {
         if (!this.instance) {
@@ -32,27 +43,28 @@ class App {
         return this.id;
     }
 
-    handleAppId(options: CommonOptions, auth: Auth) {
+    handleAppId() {
         if (typeof this.getId() === "undefined") {
-            const authMethod = auth.getAuthMethod();
+            const authMethod = this.auth.getAuthMethod();
 
             if (authMethod === "Bearer") {
-                const token = getSignedAuthToken(options.authTokenName);
+                const token = getSignedAuthToken(this.options.authTokenName);
                 const payload = getJwtPayload(token);
                 if (payload) {
                     this.extractAndSetId(payload.sub);
                 }
             } else if (
                 authMethod === "Basic" &&
-                typeof options.key !== "undefined"
+                typeof this.options.key !== "undefined"
             ) {
-                this.extractAndSetId(options.key);
+                this.extractAndSetId(this.options.key);
             }
         }
     }
 
     destroy() {
         this.setId(undefined);
+        (App.instance as any) = undefined;
     }
 }
 
