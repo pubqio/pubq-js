@@ -1,7 +1,11 @@
-export const getSignedAuthToken = (authTokenName) => {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getJwtPayload = exports.getSignedAuthToken = void 0;
+const getSignedAuthToken = (authTokenName) => {
     return localStorage.getItem(authTokenName);
 };
-export const getJwtPayload = (token) => {
+exports.getSignedAuthToken = getSignedAuthToken;
+const getJwtPayload = (token) => {
     if (token) {
         // Split the JWT into its three parts: header, payload, and signature
         const parts = token.split(".");
@@ -16,3 +20,4 @@ export const getJwtPayload = (token) => {
         return parsedPayload;
     }
 };
+exports.getJwtPayload = getJwtPayload;

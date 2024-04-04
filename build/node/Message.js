@@ -1,3 +1,6 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Message = void 0;
 class Message {
     id;
     clientId;
@@ -31,4 +34,4 @@ class Message {
         return obj;
     }
 }
-export { Message };
+exports.Message = Message;

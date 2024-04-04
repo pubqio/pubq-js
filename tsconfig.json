@@ -1,13 +1,12 @@
 {
     "compilerOptions": {
         "target": "ESNext",
-        "module": "ESNext",
+        "module": "CommonJS",
         "strict": true,
         "forceConsistentCasingInFileNames": true,
         "esModuleInterop": true,
         "moduleResolution": "node",
         "resolveJsonModule": true,
-        "importHelpers": true,
         "declaration": true,
         "baseUrl": "./src",
         "outDir": "./build/node"

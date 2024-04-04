@@ -1,8 +1,11 @@
-import { Http } from "./Http";
-import { Auth } from "./Auth";
-import { OptionsManager } from "./OptionsManager";
-import { Channels } from "./Channels";
-export var Pubq;
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Pubq = void 0;
+const Http_1 = require("./Http");
+const Auth_1 = require("./Auth");
+const OptionsManager_1 = require("./OptionsManager");
+const Channels_1 = require("./Channels");
+var Pubq;
 (function (Pubq) {
     class REST {
         options;
@@ -12,16 +15,16 @@ export var Pubq;
         auth;
         channels;
         constructor(options, auth) {
-            this.options = OptionsManager.getInstance(options).get();
-            this.http = new Http();
+            this.options = OptionsManager_1.OptionsManager.getInstance(options).get();
+            this.http = new Http_1.Http();
             this.client = this.http.getClient();
             if (typeof auth === "undefined") {
-                this.auth = Auth.getInstance();
+                this.auth = Auth_1.Auth.getInstance();
             }
             else {
                 this.auth = auth;
             }
-            this.channels = new Channels(this.constructor.name);
+            this.channels = new Channels_1.Channels(this.constructor.name);
             if (this.options.autoRefreshToken) {
                 this.auth.startRefreshTokenInterval();
             }
@@ -52,4 +55,4 @@ export var Pubq;
         }
     }
     Pubq.REST = REST;
-})(Pubq || (Pubq = {}));
+})(Pubq || (exports.Pubq = Pubq = {}));

@@ -1,9 +1,12 @@
-import { App } from "./App";
-import { DefaultChannelEvents } from "./defaults/DefaultChannelEvents";
-import { WebSocket } from "./WebSocket";
-import { ChannelManager } from "./ChannelManager";
-import { Message } from "./Message";
-import { OptionsManager } from "./OptionsManager";
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.RealTimeChannel = void 0;
+const App_1 = require("./App");
+const DefaultChannelEvents_1 = require("./defaults/DefaultChannelEvents");
+const WebSocket_1 = require("./WebSocket");
+const ChannelManager_1 = require("./ChannelManager");
+const Message_1 = require("./Message");
+const OptionsManager_1 = require("./OptionsManager");
 var EventEmitter = require("eventemitter3");
 class RealTimeChannel {
     options;
@@ -12,11 +15,11 @@ class RealTimeChannel {
     channel = null;
     channelName = null;
     events = new EventEmitter();
-    manager = new ChannelManager();
+    manager = new ChannelManager_1.ChannelManager();
     constructor(channelName) {
-        this.options = OptionsManager.getInstance().get();
-        this.ws = WebSocket.getInstance();
-        this.app = App.getInstance();
+        this.options = OptionsManager_1.OptionsManager.getInstance().get();
+        this.ws = WebSocket_1.WebSocket.getInstance();
+        this.app = App_1.App.getInstance();
         this.channelName = channelName;
         this.init();
     }
@@ -58,7 +61,7 @@ class RealTimeChannel {
     async handleChannelDataEvent(listener) {
         return new Promise(async (resolve) => {
             for await (let data of this.channel) {
-                const msg = new Message({
+                const msg = new Message_1.Message({
                     data: data,
                     channel: this.channel.name,
                 }).toObject();
@@ -145,7 +148,7 @@ class RealTimeChannel {
         }
         else if (typeof arg1 === "function" && arg2 === undefined) {
             // Overload 3
-            DefaultChannelEvents.forEach((eventName) => {
+            DefaultChannelEvents_1.DefaultChannelEvents.forEach((eventName) => {
                 this.events.on(eventName, arg1);
             });
         }
@@ -160,7 +163,7 @@ class RealTimeChannel {
         }
         else if (typeof arg1 === "function" && arg2 === undefined) {
             // Overload 2
-            DefaultChannelEvents.forEach((eventName) => {
+            DefaultChannelEvents_1.DefaultChannelEvents.forEach((eventName) => {
                 this.events.once(eventName, arg1);
             });
         }
@@ -208,4 +211,4 @@ class RealTimeChannel {
         this.off();
     }
 }
-export { RealTimeChannel };
+exports.RealTimeChannel = RealTimeChannel;

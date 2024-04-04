@@ -1,3 +1,6 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ConnectionManager = void 0;
 class ConnectionManager {
     previousState = "initialized";
     currentState = "initialized";
@@ -14,4 +17,4 @@ class ConnectionManager {
         };
     }
 }
-export { ConnectionManager };
+exports.ConnectionManager = ConnectionManager;

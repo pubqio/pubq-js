@@ -1,18 +1,21 @@
-import { getJwtPayload, getSignedAuthToken } from "./utils/jwt";
-import { getRemainingSeconds } from "./utils/time";
-import { Http } from "./Http";
-import { WebSocket } from "./WebSocket";
-import { OptionsManager } from "./OptionsManager";
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Auth = void 0;
+const jwt_1 = require("./utils/jwt");
+const time_1 = require("./utils/time");
+const Http_1 = require("./Http");
+const WebSocket_1 = require("./WebSocket");
+const OptionsManager_1 = require("./OptionsManager");
 class Auth {
     static instance;
     options;
     http;
     client;
-    ws = WebSocket.getInstance();
+    ws = WebSocket_1.WebSocket.getInstance();
     refreshTokenIntervalId;
     constructor() {
-        this.options = OptionsManager.getInstance().get();
-        this.http = new Http();
+        this.options = OptionsManager_1.OptionsManager.getInstance().get();
+        this.http = new Http_1.Http();
         this.client = this.http.getClient();
     }
     static getInstance() {
@@ -37,7 +40,7 @@ class Auth {
             throw new Error("Auth token name can not be empty.");
         }
         if (this.options.authUrl) {
-            return getSignedAuthToken(this.options.authTokenName);
+            return (0, jwt_1.getSignedAuthToken)(this.options.authTokenName);
         }
         else if (this.options.key) {
             return this.getKeyBase64();
@@ -67,7 +70,7 @@ class Auth {
     }
     async authenticate(body = {}, headers = {}) {
         if (!this.ws) {
-            this.ws = WebSocket.getInstance();
+            this.ws = WebSocket_1.WebSocket.getInstance();
         }
         const socket = this.ws.getSocket();
         const authMethod = this.getAuthMethod();
@@ -104,7 +107,7 @@ class Auth {
                 const body = {
                     ...this.options.authBody,
                     ...{
-                        token: getSignedAuthToken(this.options.authTokenName),
+                        token: (0, jwt_1.getSignedAuthToken)(this.options.authTokenName),
                     },
                 };
                 const response = await this.client.post(this.options.refreshUrl, body, {
@@ -126,7 +129,7 @@ class Auth {
                 const body = {
                     ...this.options.authBody,
                     ...{
-                        token: getSignedAuthToken(this.options.authTokenName),
+                        token: (0, jwt_1.getSignedAuthToken)(this.options.authTokenName),
                     },
                 };
                 const response = await this.client.post(this.options.revokeUrl, body, {
@@ -148,10 +151,10 @@ class Auth {
             this.stopRefreshTokenInterval();
             this.refreshTokenIntervalId = setInterval(() => {
                 if (this.options.authTokenName) {
-                    const token = getSignedAuthToken(this.options.authTokenName);
-                    const authToken = getJwtPayload(token);
+                    const token = (0, jwt_1.getSignedAuthToken)(this.options.authTokenName);
+                    const authToken = (0, jwt_1.getJwtPayload)(token);
                     if (authToken) {
-                        const remainingSeconds = getRemainingSeconds(authToken.exp);
+                        const remainingSeconds = (0, time_1.getRemainingSeconds)(authToken.exp);
                         if (remainingSeconds <= 60) {
                             this.requestRefresh();
                         }
@@ -173,4 +176,4 @@ class Auth {
         Auth.instance = undefined;
     }
 }
-export { Auth };
+exports.Auth = Auth;

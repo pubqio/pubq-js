@@ -1,14 +1,17 @@
-import { OptionsManager } from "./OptionsManager";
-import { Auth } from "./Auth";
-import { getJwtPayload, getSignedAuthToken } from "./utils/jwt";
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.App = void 0;
+const OptionsManager_1 = require("./OptionsManager");
+const Auth_1 = require("./Auth");
+const jwt_1 = require("./utils/jwt");
 class App {
     static instance;
     options;
     id;
     auth;
     constructor() {
-        this.options = OptionsManager.getInstance().get();
-        this.auth = Auth.getInstance();
+        this.options = OptionsManager_1.OptionsManager.getInstance().get();
+        this.auth = Auth_1.Auth.getInstance();
         this.handleAppId();
     }
     static getInstance() {
@@ -33,8 +36,8 @@ class App {
             const authMethod = this.auth.getAuthMethod();
             if (authMethod === "Bearer" &&
                 typeof this.options.authTokenName !== "undefined") {
-                const token = getSignedAuthToken(this.options.authTokenName);
-                const payload = getJwtPayload(token);
+                const token = (0, jwt_1.getSignedAuthToken)(this.options.authTokenName);
+                const payload = (0, jwt_1.getJwtPayload)(token);
                 if (payload) {
                     this.extractAndSetId(payload.sub);
                 }
@@ -50,4 +53,4 @@ class App {
         App.instance = undefined;
     }
 }
-export { App };
+exports.App = App;

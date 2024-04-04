@@ -1,13 +1,16 @@
-import { DefaultCommonOptions } from "./defaults/DefaultCommonOptions";
-import { DefaultPrivateOptions } from "./defaults/DefaultPrivateOptions";
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.OptionsManager = void 0;
+const DefaultCommonOptions_1 = require("./defaults/DefaultCommonOptions");
+const DefaultPrivateOptions_1 = require("./defaults/DefaultPrivateOptions");
 class OptionsManager {
     static instance;
     options;
     constructor(options) {
         this.options = {
-            ...DefaultCommonOptions,
+            ...DefaultCommonOptions_1.DefaultCommonOptions,
             ...options,
-            ...DefaultPrivateOptions,
+            ...DefaultPrivateOptions_1.DefaultPrivateOptions,
         };
     }
     static getInstance(options) {
@@ -24,4 +27,4 @@ class OptionsManager {
         this.instance = undefined;
     }
 }
-export { OptionsManager };
+exports.OptionsManager = OptionsManager;

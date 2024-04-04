@@ -1,4 +1,7 @@
-export const DefaultCommonOptions = {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.DefaultCommonOptions = void 0;
+exports.DefaultCommonOptions = {
     key: undefined,
     authUrl: undefined,
     refreshUrl: undefined,

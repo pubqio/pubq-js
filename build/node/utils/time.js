@@ -1,4 +1,7 @@
-export const getRemainingSeconds = (timestamp) => {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getRemainingSeconds = void 0;
+const getRemainingSeconds = (timestamp) => {
     // Convert the timestamp to milliseconds
     const targetTime = timestamp * 1000;
     // Get the current time in milliseconds
@@ -9,3 +12,4 @@ export const getRemainingSeconds = (timestamp) => {
     const remainingSeconds = Math.floor(difference / 1000);
     return remainingSeconds;
 };
+exports.getRemainingSeconds = getRemainingSeconds;

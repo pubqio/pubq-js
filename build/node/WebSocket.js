@@ -1,10 +1,13 @@
-import { OptionsManager } from "./OptionsManager";
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.WebSocket = void 0;
+const OptionsManager_1 = require("./OptionsManager");
 const scc = require("socketcluster-client");
 class WebSocket {
     static instance = null;
     socket;
     constructor() {
-        const sccOptions = OptionsManager.getInstance().get();
+        const sccOptions = OptionsManager_1.OptionsManager.getInstance().get();
         sccOptions.autoConnect = false;
         this.socket = scc.create(sccOptions);
     }
@@ -27,4 +30,4 @@ class WebSocket {
         }
     }
 }
-export { WebSocket };
+exports.WebSocket = WebSocket;

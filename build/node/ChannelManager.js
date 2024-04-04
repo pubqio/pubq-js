@@ -1,3 +1,6 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ChannelManager = void 0;
 class ChannelManager {
     previousState = "initialized";
     currentState = "initialized";
@@ -14,4 +17,4 @@ class ChannelManager {
         };
     }
 }
-export { ChannelManager };
+exports.ChannelManager = ChannelManager;

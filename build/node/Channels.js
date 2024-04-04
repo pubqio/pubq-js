@@ -1,5 +1,8 @@
-import { RESTChannel } from "./RESTChannel";
-import { RealTimeChannel } from "./RealTimeChannel";
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Channels = void 0;
+const RESTChannel_1 = require("./RESTChannel");
+const RealTimeChannel_1 = require("./RealTimeChannel");
 class Channels {
     creatorClassName;
     channelsMap = new Map();
@@ -10,13 +13,13 @@ class Channels {
         if (!this.channelsMap.has(channelName)) {
             // Check if it's a RealTime or REST interface
             if (this.creatorClassName === "RealTime") {
-                this.channelsMap.set(channelName, new RealTimeChannel(channelName));
+                this.channelsMap.set(channelName, new RealTimeChannel_1.RealTimeChannel(channelName));
             }
             else {
-                this.channelsMap.set(channelName, new RESTChannel(channelName));
+                this.channelsMap.set(channelName, new RESTChannel_1.RESTChannel(channelName));
             }
         }
         return this.channelsMap.get(channelName);
     }
 }
-export { Channels };
+exports.Channels = Channels;

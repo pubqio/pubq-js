@@ -1,9 +1,12 @@
-import { App } from "./App";
-import { DefaultConnectionEvents } from "./defaults/DefaultConnectionEvents";
-import { WebSocket } from "./WebSocket";
-import { ConnectionManager } from "./ConnectionManager";
-import { Auth } from "./Auth";
-import { OptionsManager } from "./OptionsManager";
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Connection = void 0;
+const App_1 = require("./App");
+const DefaultConnectionEvents_1 = require("./defaults/DefaultConnectionEvents");
+const WebSocket_1 = require("./WebSocket");
+const ConnectionManager_1 = require("./ConnectionManager");
+const Auth_1 = require("./Auth");
+const OptionsManager_1 = require("./OptionsManager");
 var EventEmitter = require("eventemitter3");
 class Connection {
     options;
@@ -11,12 +14,12 @@ class Connection {
     app;
     auth;
     events = new EventEmitter();
-    manager = new ConnectionManager();
+    manager = new ConnectionManager_1.ConnectionManager();
     constructor() {
-        this.options = OptionsManager.getInstance().get();
-        this.ws = WebSocket.getInstance();
-        this.app = App.getInstance();
-        this.auth = Auth.getInstance();
+        this.options = OptionsManager_1.OptionsManager.getInstance().get();
+        this.ws = WebSocket_1.WebSocket.getInstance();
+        this.app = App_1.App.getInstance();
+        this.auth = Auth_1.Auth.getInstance();
         if (this.options.autoConnect) {
             this.connect();
         }
@@ -119,7 +122,7 @@ class Connection {
         }
         else if (typeof arg1 === "function" && arg2 === undefined) {
             // Overload 3
-            DefaultConnectionEvents.forEach((eventName) => {
+            DefaultConnectionEvents_1.DefaultConnectionEvents.forEach((eventName) => {
                 this.events.on(eventName, arg1);
             });
         }
@@ -134,7 +137,7 @@ class Connection {
         }
         else if (typeof arg1 === "function" && arg2 === undefined) {
             // Overload 2
-            DefaultConnectionEvents.forEach((eventName) => {
+            DefaultConnectionEvents_1.DefaultConnectionEvents.forEach((eventName) => {
                 this.events.once(eventName, arg1);
             });
         }
@@ -178,4 +181,4 @@ class Connection {
         this.off();
     }
 }
-export { Connection };
+exports.Connection = Connection;

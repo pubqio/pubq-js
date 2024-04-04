@@ -1,5 +1,8 @@
-import { Auth } from "./Auth";
-import { Http } from "./Http";
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.RESTChannel = void 0;
+const Auth_1 = require("./Auth");
+const Http_1 = require("./Http");
 class RESTChannel {
     http;
     client;
@@ -7,9 +10,9 @@ class RESTChannel {
     auth;
     channelName = null;
     constructor(channelName) {
-        this.http = new Http();
+        this.http = new Http_1.Http();
         this.client = this.http.getClient();
-        this.auth = Auth.getInstance();
+        this.auth = Auth_1.Auth.getInstance();
         this.channelName = channelName;
     }
     async publish(arg1, arg2, arg3) {
@@ -42,4 +45,4 @@ class RESTChannel {
         }
     }
 }
-export { RESTChannel };
+exports.RESTChannel = RESTChannel;
