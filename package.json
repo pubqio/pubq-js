@@ -6,15 +6,13 @@
     "browser": "build/browser/pubq.js",
     "scripts": {
         "build": "rm -rf build/ && npm run build:node && npm run build:web",
-        "build:node": "rm -rf types/ && tsc && rm -rf build/node/types/",
+        "build:node": "tsc",
         "build:web": "npx webpack && npx webpack --mode production"
     },
-    "typings": "./pubq.d.ts",
+    "types": "./build/node/pubq.d.ts",
     "files": [
         "build/**",
-        "types/**",
-        "src/**",
-        "pubq.d.ts"
+        "src/**"
     ],
     "repository": {
         "type": "git",

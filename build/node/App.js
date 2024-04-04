@@ -31,7 +31,8 @@ class App {
     handleAppId() {
         if (typeof this.getId() === "undefined") {
             const authMethod = this.auth.getAuthMethod();
-            if (authMethod === "Bearer") {
+            if (authMethod === "Bearer" &&
+                typeof this.options.authTokenName !== "undefined") {
                 const token = getSignedAuthToken(this.options.authTokenName);
                 const payload = getJwtPayload(token);
                 if (payload) {

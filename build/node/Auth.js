@@ -85,7 +85,7 @@ class Auth {
         socket.deauthenticate();
     }
     async requestToken() {
-        if (this.options.authUrl) {
+        if (this.options.authUrl && this.options.authTokenName) {
             try {
                 const response = await this.client.post(this.options.authUrl, this.options.authBody, { headers: this.options.authHeaders });
                 localStorage.setItem(this.options.authTokenName, response.data.data.token);
@@ -99,7 +99,7 @@ class Auth {
         throw new Error("Auth URL has not been provided.");
     }
     async requestRefresh() {
-        if (this.options.refreshUrl) {
+        if (this.options.refreshUrl && this.options.authTokenName) {
             try {
                 const body = {
                     ...this.options.authBody,
@@ -121,7 +121,7 @@ class Auth {
         throw new Error("Refresh URL has not been provided.");
     }
     async requestRevoke() {
-        if (this.options.revokeUrl) {
+        if (this.options.revokeUrl && this.options.authTokenName) {
             try {
                 const body = {
                     ...this.options.authBody,
@@ -147,12 +147,14 @@ class Auth {
             // Stop if any refresh token interval is exist
             this.stopRefreshTokenInterval();
             this.refreshTokenIntervalId = setInterval(() => {
-                const token = getSignedAuthToken(this.options.authTokenName);
-                const authToken = getJwtPayload(token);
-                if (authToken) {
-                    const remainingSeconds = getRemainingSeconds(authToken.exp);
-                    if (remainingSeconds <= 60) {
-                        this.requestRefresh();
+                if (this.options.authTokenName) {
+                    const token = getSignedAuthToken(this.options.authTokenName);
+                    const authToken = getJwtPayload(token);
+                    if (authToken) {
+                        const remainingSeconds = getRemainingSeconds(authToken.exp);
+                        if (remainingSeconds <= 60) {
+                            this.requestRefresh();
+                        }
                     }
                 }
             }, this.options.refreshTokenInterval);
@@ -165,7 +167,9 @@ class Auth {
     }
     destroy() {
         this.stopRefreshTokenInterval();
-        localStorage.removeItem(this.options.authTokenName);
+        if (this.options.authTokenName) {
+            localStorage.removeItem(this.options.authTokenName);
+        }
         Auth.instance = undefined;
     }
 }

@@ -1,15 +1,11 @@
 export type CommonOptions = {
     key?: string;
-
     authUrl?: string;
     refreshUrl?: string;
     revokeUrl?: string;
-
     authBody?: object;
     authHeaders?: object;
-
     authTokenName?: string;
-
     autoConnect?: boolean;
     autoReconnect?: boolean;
     autoAuthenticate?: boolean;
