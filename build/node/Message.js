@@ -1,21 +1,16 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Message = void 0;
-class Message {
-    id;
-    clientId;
-    connectionId;
-    data;
-    channel;
-    constructor(msg) {
+var Message = /** @class */ (function () {
+    function Message(msg) {
         this.id = msg.id;
         this.clientId = msg.clientId;
         this.connectionId = msg.connectionId;
         this.data = msg.data;
         this.channel = msg.channel;
     }
-    toObject() {
-        const obj = {};
+    Message.prototype.toObject = function () {
+        var obj = {};
         if (this.id !== undefined) {
             obj.id = this.id;
         }
@@ -32,6 +27,7 @@ class Message {
             obj.channel = this.channel;
         }
         return obj;
-    }
-}
+    };
+    return Message;
+}());
 exports.Message = Message;

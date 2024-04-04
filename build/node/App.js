@@ -1,43 +1,39 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.App = void 0;
-const OptionsManager_1 = require("./OptionsManager");
-const Auth_1 = require("./Auth");
-const jwt_1 = require("./utils/jwt");
-class App {
-    static instance;
-    options;
-    id;
-    auth;
-    constructor() {
+var OptionsManager_1 = require("./OptionsManager");
+var Auth_1 = require("./Auth");
+var jwt_1 = require("./utils/jwt");
+var App = /** @class */ (function () {
+    function App() {
         this.options = OptionsManager_1.OptionsManager.getInstance().get();
         this.auth = Auth_1.Auth.getInstance();
         this.handleAppId();
     }
-    static getInstance() {
+    App.getInstance = function () {
         if (!this.instance) {
             this.instance = new App();
         }
         return this.instance;
-    }
-    getId() {
+    };
+    App.prototype.getId = function () {
         return this.id;
-    }
-    setId(id) {
+    };
+    App.prototype.setId = function (id) {
         this.id = id;
-    }
-    extractAndSetId(publicKey) {
-        const [appId] = publicKey.split(".");
+    };
+    App.prototype.extractAndSetId = function (publicKey) {
+        var appId = publicKey.split(".")[0];
         this.setId(appId);
         return this.id;
-    }
-    handleAppId() {
+    };
+    App.prototype.handleAppId = function () {
         if (typeof this.getId() === "undefined") {
-            const authMethod = this.auth.getAuthMethod();
+            var authMethod = this.auth.getAuthMethod();
             if (authMethod === "Bearer" &&
                 typeof this.options.authTokenName !== "undefined") {
-                const token = (0, jwt_1.getSignedAuthToken)(this.options.authTokenName);
-                const payload = (0, jwt_1.getJwtPayload)(token);
+                var token = (0, jwt_1.getSignedAuthToken)(this.options.authTokenName);
+                var payload = (0, jwt_1.getJwtPayload)(token);
                 if (payload) {
                     this.extractAndSetId(payload.sub);
                 }
@@ -47,10 +43,11 @@ class App {
                 this.extractAndSetId(this.options.key);
             }
         }
-    }
-    destroy() {
+    };
+    App.prototype.destroy = function () {
         this.setId(undefined);
         App.instance = undefined;
-    }
-}
+    };
+    return App;
+}());
 exports.App = App;

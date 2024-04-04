@@ -24,8 +24,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Pubq = void 0;
-const RealTimeModule = __importStar(require("./RealTime"));
-const RESTModule = __importStar(require("./REST"));
+var RealTimeModule = __importStar(require("./RealTime"));
+var RESTModule = __importStar(require("./REST"));
 var Pubq;
 (function (Pubq) {
     Pubq.RealTime = RealTimeModule.Pubq.RealTime;

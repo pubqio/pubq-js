@@ -4,17 +4,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Http = void 0;
-const axios_1 = __importDefault(require("axios"));
-class Http {
-    baseUrl = "https://rest.pubq.io";
-    client;
-    constructor() {
+var axios_1 = __importDefault(require("axios"));
+var Http = /** @class */ (function () {
+    function Http() {
+        this.baseUrl = "https://rest.pubq.io";
         this.client = axios_1.default.create({
             baseURL: this.baseUrl,
         });
     }
-    getClient() {
+    Http.prototype.getClient = function () {
         return this.client;
-    }
-}
+    };
+    return Http;
+}());
 exports.Http = Http;

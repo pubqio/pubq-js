@@ -1,20 +1,28 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ChannelManager = void 0;
-class ChannelManager {
-    previousState = "initialized";
-    currentState = "initialized";
-    constructor() { }
-    stateChangeObject(state, event, reason) {
-        const previousState = this.currentState;
+var ChannelManager = /** @class */ (function () {
+    function ChannelManager() {
+        this.previousState = "initialized";
+        this.currentState = "initialized";
+    }
+    ChannelManager.prototype.stateChangeObject = function (state, event, reason) {
+        var previousState = this.currentState;
         this.currentState = state;
         this.previousState = previousState;
-        return {
-            current: state,
-            previous: this.previousState,
-            ...(event !== undefined && { event }),
-            ...(reason !== undefined && { reason }),
-        };
-    }
-}
+        return __assign(__assign({ current: state, previous: this.previousState }, (event !== undefined && { event: event })), (reason !== undefined && { reason: reason }));
+    };
+    return ChannelManager;
+}());
 exports.ChannelManager = ChannelManager;

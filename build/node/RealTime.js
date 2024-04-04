@@ -1,21 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Pubq = void 0;
-const Auth_1 = require("./Auth");
-const Connection_1 = require("./Connection");
-const App_1 = require("./App");
-const OptionsManager_1 = require("./OptionsManager");
-const Channels_1 = require("./Channels");
+var Auth_1 = require("./Auth");
+var Connection_1 = require("./Connection");
+var App_1 = require("./App");
+var OptionsManager_1 = require("./OptionsManager");
+var Channels_1 = require("./Channels");
 var Pubq;
 (function (Pubq) {
-    class RealTime {
-        optionsManager;
-        options;
-        auth;
-        connection;
-        channels;
-        app;
-        constructor(options) {
+    var RealTime = /** @class */ (function () {
+        function RealTime(options) {
             this.optionsManager = OptionsManager_1.OptionsManager.getInstance(options);
             this.options = this.optionsManager.get();
             this.auth = Auth_1.Auth.getInstance();
@@ -23,7 +17,7 @@ var Pubq;
             this.channels = new Channels_1.Channels(this.constructor.name);
             this.app = App_1.App.getInstance();
         }
-        updateOptions(options) {
+        RealTime.prototype.updateOptions = function (options) {
             this.destroy();
             this.optionsManager = OptionsManager_1.OptionsManager.getInstance(options);
             this.options = this.optionsManager.get();
@@ -31,13 +25,14 @@ var Pubq;
             this.connection = new Connection_1.Connection();
             this.channels = new Channels_1.Channels(this.constructor.name);
             this.app = App_1.App.getInstance();
-        }
-        destroy() {
+        };
+        RealTime.prototype.destroy = function () {
             OptionsManager_1.OptionsManager.destroy();
             this.auth.destroy();
             this.connection.destroy();
             this.app.destroy();
-        }
-    }
+        };
+        return RealTime;
+    }());
     Pubq.RealTime = RealTime;
 })(Pubq || (exports.Pubq = Pubq = {}));

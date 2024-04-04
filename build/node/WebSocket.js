@@ -1,26 +1,24 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.WebSocket = void 0;
-const OptionsManager_1 = require("./OptionsManager");
-const scc = require("socketcluster-client");
-class WebSocket {
-    static instance = null;
-    socket;
-    constructor() {
-        const sccOptions = OptionsManager_1.OptionsManager.getInstance().get();
+var OptionsManager_1 = require("./OptionsManager");
+var scc = require("socketcluster-client");
+var WebSocket = /** @class */ (function () {
+    function WebSocket() {
+        var sccOptions = OptionsManager_1.OptionsManager.getInstance().get();
         sccOptions.autoConnect = false;
         this.socket = scc.create(sccOptions);
     }
-    static getInstance() {
+    WebSocket.getInstance = function () {
         if (!this.instance) {
             this.instance = new WebSocket();
         }
         return this.instance;
-    }
-    getSocket() {
+    };
+    WebSocket.prototype.getSocket = function () {
         return this.socket;
-    }
-    destroy() {
+    };
+    WebSocket.prototype.destroy = function () {
         if (WebSocket.instance) {
             this.socket.disconnect();
             this.socket.killAllListeners();
@@ -28,6 +26,8 @@ class WebSocket {
             this.socket.deauthenticate();
             WebSocket.instance = null;
         }
-    }
-}
+    };
+    WebSocket.instance = null;
+    return WebSocket;
+}());
 exports.WebSocket = WebSocket;

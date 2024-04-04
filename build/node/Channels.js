@@ -1,15 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Channels = void 0;
-const RESTChannel_1 = require("./RESTChannel");
-const RealTimeChannel_1 = require("./RealTimeChannel");
-class Channels {
-    creatorClassName;
-    channelsMap = new Map();
-    constructor(creatorClassName) {
+var RESTChannel_1 = require("./RESTChannel");
+var RealTimeChannel_1 = require("./RealTimeChannel");
+var Channels = /** @class */ (function () {
+    function Channels(creatorClassName) {
+        this.channelsMap = new Map();
         this.creatorClassName = creatorClassName;
     }
-    get(channelName) {
+    Channels.prototype.get = function (channelName) {
         if (!this.channelsMap.has(channelName)) {
             // Check if it's a RealTime or REST interface
             if (this.creatorClassName === "RealTime") {
@@ -20,6 +19,7 @@ class Channels {
             }
         }
         return this.channelsMap.get(channelName);
-    }
-}
+    };
+    return Channels;
+}());
 exports.Channels = Channels;
