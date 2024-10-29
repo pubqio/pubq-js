@@ -1,50 +1,50 @@
 {
-    "name": "pubq",
-    "version": "1.0.19",
-    "description": "PUBQ JavaScript SDK",
-    "main": "build/node/pubq.js",
-    "browser": "build/browser/pubq.js",
-    "scripts": {
-        "build": "rm -rf build/ && npm run build:node && npm run build:web",
-        "build:node": "tsc",
-        "build:web": "npx webpack && npx webpack --mode production"
-    },
-    "types": "./build/node/pubq.d.ts",
-    "files": [
-        "build/**",
-        "src/**"
-    ],
-    "repository": {
-        "type": "git",
-        "url": "git+ssh://git@github.com/pubqio/pubq-js.git"
-    },
-    "keywords": [
-        "pubq",
-        "pubsub",
-        "channels",
-        "websocket",
-        "realtime",
-        "messaging",
-        "communication"
-    ],
-    "author": "PUBQ Team",
-    "license": "ISC",
-    "bugs": {
-        "url": "https://github.com/pubqio/pubq-js/issues"
-    },
-    "homepage": "https://pubq.io",
-    "dependencies": {
-        "axios": "^1.5.0",
-        "eventemitter3": "^5.0.1",
-        "socketcluster-client": "^17.1.1"
-    },
-    "devDependencies": {
-        "ts-loader": "^9.4.4",
-        "typescript": "^5.2.2",
-        "webpack": "^5.80.0",
-        "webpack-cli": "^5.0.2"
-    },
-    "engines": {
-        "node": ">=14"
-    }
+  "name": "pubq",
+  "version": "2.0.0",
+  "description": "PubQ JavaScript: A client library for real-time messaging on browsers, Node.js, and other platforms",
+  "main": "build/pubq.cjs.js",
+  "module": "build/pubq.esm.js",
+  "browser": "build/pubq.umd.js",
+  "files": [
+    "build/**",
+    "src/**"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rollup -c"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pubqio/pubq-js.git"
+  },
+  "keywords": [
+    "pubq",
+    "pubsub",
+    "channels",
+    "websocket",
+    "realtime",
+    "messaging",
+    "communication"
+  ],
+  "author": "PubQ",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pubqio/pubq-js/issues"
+  },
+  "homepage": "https://github.com/pubqio/pubq-js#readme",
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.1",
+    "@rollup/plugin-node-resolve": "^15.3.0",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^12.1.1",
+    "@types/ws": "^8.5.12",
+    "rollup": "^2.79.2",
+    "ts-loader": "^9.5.1",
+    "tslib": "^2.8.0",
+    "typedoc": "^0.26.10",
+    "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
 }

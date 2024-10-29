@@ -1,19 +1,28 @@
-import * as RealTimeModule from "./RealTime";
-import * as RESTModule from "./REST";
+import { Rest } from "./core/rest";
+import { Socket } from "./core/socket";
 
-export namespace Pubq {
-    export import RealTime = RealTimeModule.Pubq.RealTime;
-    export import REST = RESTModule.Pubq.REST;
-}
+const PubQ = {
+    Rest: class {
+        static instance: Rest;
 
-declare global {
-    interface Window {
-        Pubq: typeof Pubq;
-    }
-}
+        constructor() {
+            if (!PubQ.Rest.instance) {
+                PubQ.Rest.instance = new Rest();
+            }
+            return PubQ.Rest.instance;
+        }
+    },
 
-if (typeof window !== "undefined") {
-    window.Pubq = Pubq;
-}
+    Socket: class {
+        static instance: Socket;
 
-export default Pubq;
+        constructor() {
+            if (!PubQ.Socket.instance) {
+                PubQ.Socket.instance = new Socket();
+            }
+            return PubQ.Socket.instance;
+        }
+    },
+};
+
+export { PubQ };
