@@ -9,7 +9,7 @@ export type SendAction = (typeof SendActions)[keyof typeof SendActions];
 export const ResponseActions = {
     CONNECTED: "connected",
     DISCONNECTED: "disconnected",
-    ERROR: "error",
+    FAILED: "failed",
     SUBSCRIBED: "subscribed",
     UNSUBSCRIBED: "unsubscribed",
     PUBLISHED: "published",
