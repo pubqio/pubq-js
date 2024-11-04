@@ -43,7 +43,7 @@ Get your API key from [PubQ dashboard](https://dashboard.pubq.io) by [creating a
 Connect to PubQ:
 
 ```js
-const socket = new PubQ.Socket({ key: "YOUR_API_KEY" });
+const socket = new PubQ.Socket({ apiKey: "YOUR_API_KEY" });
 ```
 
 Subscribe to a channel and listen for any data publishing to receive:
@@ -64,7 +64,7 @@ channel.publish("Hello!");
 Publish a message with REST interface:
 
 ```js
-const rest = new PubQ.Rest({ key: "YOUR_API_KEY" });
+const rest = new PubQ.Rest({ apiKey: "YOUR_API_KEY" });
 
 let channel = rest.channels.get("my-channel");
 
