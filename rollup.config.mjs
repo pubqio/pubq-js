@@ -28,5 +28,5 @@ export default {
         },
     ],
     plugins: [typescript(), resolve(), commonjs(), terser()],
-    external: ["ws"],
+    external: ["ws", "crypto", "http", "https", "url"],
 };
