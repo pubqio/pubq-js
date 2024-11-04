@@ -1,13 +1,19 @@
-export interface ActionMessage {
-    action: string;
-    data: any;
-}
+import { ResponseAction, SendAction } from "types/action.type";
 
 export interface ResponseMessage {
-    event: string;
+    action: ResponseAction;
     data: any;
 }
 
-export interface PublishMessage extends ActionMessage {
+export interface SendMessage {
+    action: SendAction;
+    data: any;
+}
+
+export interface ConnectionMessage extends ResponseMessage {
+    connectionId: string;
+}
+
+export interface PublishMessage extends SendMessage {
     channel: string;
 }
