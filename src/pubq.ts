@@ -1,26 +1,17 @@
+import { Option } from "interfaces/option.interface";
 import { Rest } from "./core/rest";
 import { Socket } from "./core/socket";
 
 const PubQ = {
     Rest: class {
-        static instance: Rest;
-
-        constructor() {
-            if (!PubQ.Rest.instance) {
-                PubQ.Rest.instance = new Rest();
-            }
-            return PubQ.Rest.instance;
+        constructor(option?: Partial<Option>) {
+            return new Rest(option);
         }
     },
 
     Socket: class {
-        static instance: Socket;
-
-        constructor() {
-            if (!PubQ.Socket.instance) {
-                PubQ.Socket.instance = new Socket();
-            }
-            return PubQ.Socket.instance;
+        constructor(option?: Partial<Option>) {
+            return new Socket(option);
         }
     },
 };
