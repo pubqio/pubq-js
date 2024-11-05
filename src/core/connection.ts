@@ -104,7 +104,7 @@ class Connection extends EventEmitter {
             try {
                 const message: IncomingMessage = JSON.parse(event.data);
                 if (message.action === ConnectionActions.CONNECTED) {
-                    this.emit(ConnectionEvents.CONNECTED, message.data);
+                    this.emit(ConnectionEvents.CONNECTED, message);
                 } else if (message.action === ConnectionActions.DISCONNECTED) {
                     this.emit(ConnectionEvents.DISCONNECTED);
                 }
