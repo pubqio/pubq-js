@@ -21,12 +21,18 @@ export default {
             file: "build/pubq.umd.js",
             format: "umd",
             name: "PubQ",
+            exports: "named",
             globals: {
                 ws: "WebSocket",
             },
             sourcemap: true,
         },
     ],
-    plugins: [typescript(), resolve(), commonjs(), terser()],
+    plugins: [
+        typescript({ declaration: true, declarationDir: "./build" }),
+        resolve({ browser: true, preferBuiltins: false }),
+        commonjs({ transformMixedEsModules: true }),
+        terser(),
+    ],
     external: ["ws", "crypto", "http", "https", "url"],
 };
