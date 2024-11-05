@@ -40,9 +40,9 @@ export class SocketChannel extends BaseChannel {
         }
 
         switch (message.action) {
-            case ChannelResponseActions.PUBLISHED:
+            case ChannelResponseActions.MESSAGE:
                 if (this.isSubscribed()) {
-                    this.messageCallback?.(message.data);
+                    this.messageCallback?.(message);
                 }
                 break;
 
