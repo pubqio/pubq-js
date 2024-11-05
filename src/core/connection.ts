@@ -3,8 +3,8 @@ import { EventEmitter } from "./event-emitter";
 import { OptionManager } from "./option-manager";
 import { WebSocketClient } from "./websocket-client";
 import { PubQWebSocket } from "interfaces/websocket.interface";
-import { ResponseMessage } from "interfaces/message.interface";
-import { ResponseActions } from "types/action.type";
+import { IncomingMessage } from "interfaces/message.interface";
+import { ConnectionActions } from "types/action.type";
 import { AuthManager } from "./auth-manager";
 
 class Connection extends EventEmitter {
@@ -102,10 +102,10 @@ class Connection extends EventEmitter {
 
         this.socket.onmessage = (event: MessageEvent) => {
             try {
-                const message: ResponseMessage = JSON.parse(event.data);
-                if (message.action === ResponseActions.CONNECTED) {
+                const message: IncomingMessage = JSON.parse(event.data);
+                if (message.action === ConnectionActions.CONNECTED) {
                     this.emit(ConnectionEvents.CONNECTED, message.data);
-                } else if (message.action === ResponseActions.DISCONNECTED) {
+                } else if (message.action === ConnectionActions.DISCONNECTED) {
                     this.emit(ConnectionEvents.DISCONNECTED);
                 }
             } catch (error) {

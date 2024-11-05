@@ -1,19 +1,44 @@
-import { ResponseAction, SendAction } from "types/action.type";
+import {
+    ChannelAction,
+    ChannelResponseAction,
+    ConnectionAction,
+    OutgoingAction,
+    IncomingAction
+} from "types/action.type";
 
-export interface ResponseMessage {
-    action: ResponseAction;
-    data: any;
+// Base interface for all messages
+export interface BaseMessage<T = any> {
+    action: OutgoingAction | IncomingAction;
+    data: T;
 }
 
-export interface SendMessage {
-    action: SendAction;
-    data: any;
+// Base interface for outgoing messages
+export interface OutgoingMessage<T = any> extends BaseMessage<T> {
+    action: OutgoingAction;
 }
 
-export interface ConnectionMessage extends ResponseMessage {
-    connectionId: string;
+// Base interface for incoming messages
+export interface IncomingMessage<T = any> extends BaseMessage<T> {
+    action: IncomingAction;
 }
 
-export interface PublishMessage extends SendMessage {
+// Base interface for channel-related messages
+export interface ChannelMessage<T = any> extends BaseMessage<T> {
     channel: string;
+}
+
+// Outgoing channel messages (publish, subscribe, unsubscribe)
+export interface OutgoingChannelMessage<T = any> extends OutgoingMessage<T>, ChannelMessage<T> {
+    action: ChannelAction;
+}
+
+// Incoming channel messages (published, subscribed, unsubscribed, failed)
+export interface IncomingChannelMessage<T = any> extends IncomingMessage<T>, ChannelMessage<T> {
+    action: ChannelResponseAction;
+}
+
+// Connection-specific messages (connected, disconnected, failed)
+export interface ConnectionMessage<T = any> extends IncomingMessage<T> {
+    action: ConnectionAction;
+    connectionId: string;
 }
