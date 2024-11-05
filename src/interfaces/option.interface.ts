@@ -12,10 +12,10 @@ export interface Option {
     tokenRequest?: TokenRequest;
 
     httpHost?: string;
-    httpPort?: number;
+    httpPort?: number | null;
 
     wsHost?: string;
-    wsPort?: number;
+    wsPort?: number | null;
 
     isSecure?: boolean;
 
@@ -32,13 +32,13 @@ export interface Option {
 }
 
 export const DEFAULT_OPTIONS: Option = {
-    httpHost: "localhost",
-    httpPort: 8080,
+    httpHost: "rest.pubq.io",
+    httpPort: null,
 
-    wsHost: "localhost",
-    wsPort: 8081,
+    wsHost: "socket.pubq.io",
+    wsPort: null,
 
-    isSecure: false,
+    isSecure: true,
 
     autoConnect: true,
     autoReconnect: true,
