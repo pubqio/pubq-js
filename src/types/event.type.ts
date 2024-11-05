@@ -1,6 +1,7 @@
 export const ConnectionEvents = {
     INITIALIZED: "initialized",
     CONNECTING: "connecting",
+    OPENED: "opened",
     CONNECTED: "connected",
     DISCONNECTED: "disconnected",
     CLOSING: "closing",

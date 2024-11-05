@@ -89,7 +89,7 @@ class Connection extends EventEmitter {
         if (!this.socket) return;
 
         this.socket.onopen = () => {
-            this.emit(ConnectionEvents.CONNECTED);
+            this.emit(ConnectionEvents.OPENED);
         };
 
         this.socket.onclose = () => {
