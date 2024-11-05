@@ -302,8 +302,15 @@ class AuthManager extends EventEmitter {
         try {
             const { apiKeyId } = ApiKey.parse(apiKey);
 
+            const host = this.optionManager.getOption("httpHost");
+            const port = this.optionManager.getOption("httpPort");
+            const isSecure = this.optionManager.getOption("isSecure");
+            const protocol = isSecure ? "https" : "http";
+            const baseUrl = `${protocol}://${host}${port ? `:${port}` : ""}/v1`;
+            const url = `${baseUrl}/key/${apiKeyId}/issue-token`;
+
             const response = await this.httpClient.post<{ token: string }>(
-                `/v1/key/${apiKeyId}/issue-token`, // PubQ token endpoint
+                url, // PubQ token endpoint
                 options, // Token options
                 {
                     Authorization: `Basic ${btoa(apiKey)}`,
@@ -388,8 +395,15 @@ class AuthManager extends EventEmitter {
      */
     public async requestToken(request: TokenRequest): Promise<AuthResponse> {
         try {
+            const host = this.optionManager.getOption("httpHost");
+            const port = this.optionManager.getOption("httpPort");
+            const isSecure = this.optionManager.getOption("isSecure");
+            const protocol = isSecure ? "https" : "http";
+            const baseUrl = `${protocol}://${host}${port ? `:${port}` : ""}/v1`;
+            const url = `${baseUrl}/keys/${request.kid}/request-token`;
+
             const response = await this.httpClient.post<AuthResponse>(
-                `/v1/keys/${request.kid}/request-token`,
+                url,
                 request,
                 {
                     "Content-Type": "application/json",

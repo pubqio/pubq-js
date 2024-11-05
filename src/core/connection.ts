@@ -60,7 +60,7 @@ class Connection extends EventEmitter {
         const port = this.optionManager.getOption("wsPort");
 
         const protocol = secure ? "wss" : "ws";
-        const baseUrl = `${protocol}://${host}${port ? `:${port}` : ""}`;
+        const baseUrl = `${protocol}://${host}${port ? `:${port}` : ""}/v1/`;
 
         return this.authManager.getAuthenticateUrl(baseUrl);
     }
