@@ -3,23 +3,23 @@ import { DEFAULT_OPTIONS, Option } from "interfaces/option.interface";
 class OptionManager {
     private static instances: Map<string, OptionManager> = new Map();
     private instanceId: string;
-    private option: Option = { ...DEFAULT_OPTIONS };
+    private options: Option = { ...DEFAULT_OPTIONS };
 
     private constructor(instanceId: string, options?: Partial<Option>) {
         this.instanceId = instanceId;
-        this.option = options
+        this.options = options
             ? { ...DEFAULT_OPTIONS, ...options }
             : DEFAULT_OPTIONS;
     }
 
     public static getInstance(
         instanceId: string,
-        option?: Partial<Option>
+        options?: Partial<Option>
     ): OptionManager {
         if (!OptionManager.instances.has(instanceId)) {
             OptionManager.instances.set(
                 instanceId,
-                new OptionManager(instanceId, option)
+                new OptionManager(instanceId, options)
             );
         }
         return OptionManager.instances.get(instanceId)!;
@@ -28,11 +28,11 @@ class OptionManager {
     public getOption(): Option;
     public getOption<K extends keyof Option>(optionName: K): Option[K];
     public getOption<K extends keyof Option>(optionName?: K) {
-        return optionName ? this.option[optionName] : this.option;
+        return optionName ? this.options[optionName] : this.options;
     }
 
     public setOption(newOption: Partial<Option>): void {
-        this.option = { ...this.option, ...newOption };
+        this.options = { ...this.options, ...newOption };
     }
 
     public reset(): void {

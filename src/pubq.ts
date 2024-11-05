@@ -4,14 +4,14 @@ import { Socket } from "./core/socket";
 
 const PubQ = {
     Rest: class {
-        constructor(option?: Partial<Option>) {
-            return new Rest(option);
+        constructor(options?: Partial<Option>) {
+            return new Rest(options);
         }
     },
 
     Socket: class {
-        constructor(option?: Partial<Option>) {
-            return new Socket(option);
+        constructor(options?: Partial<Option>) {
+            return new Socket(options);
         }
     },
 };
