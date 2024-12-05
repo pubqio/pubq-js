@@ -24,11 +24,18 @@ export interface Option {
     autoResubscribe?: boolean;
     autoAuthenticate?: boolean;
 
-    connectTimeoutMs?: number;
-    reconnectIntervalMs?: number;
+    connectTimeout?: number;
+
+    maxReconnectAttempts?: number;
+    initialReconnectDelay?: number;
+    maxReconnectDelay?: number;
+    reconnectBackoffMultiplier?: number;
+
     resubscribeIntervalMs?: number;
     authenticateRetries?: number;
     authenticateRetryIntervalMs?: number;
+
+    pingTimeoutMs?: number;
 }
 
 export const DEFAULT_OPTIONS: Option = {
@@ -45,9 +52,16 @@ export const DEFAULT_OPTIONS: Option = {
     autoResubscribe: true,
     autoAuthenticate: true,
 
-    connectTimeoutMs: 3000,
-    reconnectIntervalMs: 1000,
+    connectTimeout: 3000,
+
+    maxReconnectAttempts: 10,
+    initialReconnectDelay: 1000,
+    maxReconnectDelay: 30000,
+    reconnectBackoffMultiplier: 1.5,
+    
     resubscribeIntervalMs: 1000,
     authenticateRetries: 3,
     authenticateRetryIntervalMs: 1000,
+
+    pingTimeoutMs: 10000,
 };

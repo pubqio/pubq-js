@@ -36,28 +36,47 @@ class WebSocketClient {
     }
 
     public connect(url: string): void {
-        if (!this.socket) {
-            this.socket = new this.WebSocketImplementation(
-                url
-            ) as PubQWebSocket;
+        if (this.socket) {
+            // If there's an existing socket, close it first
+            this.disconnect();
         }
+
+        this.socket = new this.WebSocketImplementation(url) as PubQWebSocket;
+
+        // Error handler at WebSocketClient level
+        this.socket.onerror = (error: Event) => {
+            console.error("WebSocket error:", error);
+            // Don't disconnect here - let the Connection class handle it
+        };
+    }
+
+    public isConnected(): boolean {
+        return (
+            this.socket !== null && this.socket.readyState === WebSocket.OPEN
+        );
     }
 
     public disconnect(): void {
         if (this.socket) {
-            this.socket.close();
+            if (this.socket.readyState < WebSocket.CLOSING) {
+                try {
+                    this.socket.close();
+                } catch (error) {
+                    console.error("Error closing socket:", error);
+                }
+            }
             this.socket = null;
         }
     }
 
     public send(data: string | ArrayBufferLike | Blob | ArrayBufferView): void {
-        if (this.socket) {
-            this.socket.send(data);
+        if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
+            throw new Error("WebSocket is not connected");
         }
+        this.socket.send(data);
     }
 
     public reset(): void {
-        this.disconnect();
         WebSocketClient.instances.delete(this.instanceId);
     }
 }

@@ -14,6 +14,10 @@ class Connection extends EventEmitter {
     private authManager: AuthManager;
     private wsClient: WebSocketClient;
     private socket: PubQWebSocket | null = null;
+    private reconnectAttempts: number = 0;
+    private reconnectTimeout?: NodeJS.Timeout;
+    private isReconnecting: boolean = false;
+    private pingTimeout?: NodeJS.Timeout;
 
     private constructor(instanceId: string) {
         super();
@@ -43,6 +47,104 @@ class Connection extends EventEmitter {
             Connection.instances.set(instanceId, new Connection(instanceId));
         }
         return Connection.instances.get(instanceId)!;
+    }
+
+    private setupPingHandler(): void {
+        if (!this.socket) return;
+
+        const PING_TIMEOUT =
+            this.optionManager.getOption("pingTimeoutMs") || 60000; // Default 60s
+
+        // Handle pong messages to reset the ping timer
+        this.socket.onping = () => {
+            console.log("ping");
+            // Reset the ping timeout
+            if (this.pingTimeout) clearTimeout(this.pingTimeout);
+
+            this.pingTimeout = setTimeout(() => {
+                this.handleConnectionInterrupted();
+            }, PING_TIMEOUT);
+        };
+
+        // Automatically send pong responses
+        this.socket.onpong = () => {
+            console.log("pong");
+            // Optional: can be used for connection quality monitoring
+        };
+    }
+
+    private handleConnectionInterrupted(): void {
+        if (this.pingTimeout) {
+            clearTimeout(this.pingTimeout);
+            this.pingTimeout = undefined;
+        }
+        this.disconnect();
+        this.handleConnectionClosed(); // This will trigger reconnection if enabled
+    }
+
+    private async handleConnectionClosed() {
+        // Don't attempt reconnection if we're already disconnecting
+        if (this.socket?.readyState === WebSocket.CLOSING) return;
+
+        if (this.optionManager.getOption("autoReconnect")) {
+            await this.attemptReconnection();
+        }
+    }
+
+    private calculateReconnectDelay(): number {
+        const initial = this.optionManager.getOption("initialReconnectDelay")!;
+        const max = this.optionManager.getOption("maxReconnectDelay")!;
+        const multiplier = this.optionManager.getOption(
+            "reconnectBackoffMultiplier"
+        )!;
+
+        const delay = initial * Math.pow(multiplier, this.reconnectAttempts);
+        return Math.min(delay, max);
+    }
+
+    private async attemptReconnection() {
+        if (this.isReconnecting) return;
+
+        const maxAttempts = this.optionManager.getOption(
+            "maxReconnectAttempts"
+        )!;
+
+        this.isReconnecting = true;
+
+        while (this.reconnectAttempts < maxAttempts) {
+            try {
+                const delay = this.calculateReconnectDelay();
+
+                this.emit(ConnectionEvents.CONNECTING, {
+                    isReconnection: true,
+                    attempt: this.reconnectAttempts + 1,
+                    maxAttempts,
+                    delay,
+                });
+
+                await new Promise((resolve) => setTimeout(resolve, delay));
+
+                await this.connect();
+
+                // Connection successful
+                this.reconnectAttempts = 0;
+                this.isReconnecting = false;
+                return;
+            } catch (error) {
+                this.reconnectAttempts++;
+
+                if (this.reconnectAttempts >= maxAttempts) {
+                    this.emit(ConnectionEvents.FAILED, {
+                        error,
+                        context: "reconnection",
+                        attempt: this.reconnectAttempts,
+                        maxAttempts,
+                    });
+                    this.isReconnecting = false;
+                    break;
+                }
+            }
+        }
     }
 
     private async handleTokenExpired() {
@@ -89,14 +191,31 @@ class Connection extends EventEmitter {
         if (!this.socket) return;
 
         this.socket.onopen = () => {
+            this.reconnectAttempts = 0;
+            this.isReconnecting = false;
             this.emit(ConnectionEvents.OPENED);
+            this.setupPingHandler();
         };
 
-        this.socket.onclose = () => {
+        this.socket.onclose = (event: CloseEvent) => {
+            if (this.pingTimeout) {
+                clearTimeout(this.pingTimeout);
+                this.pingTimeout = undefined;
+            }
+
             this.emit(ConnectionEvents.CLOSED);
+
+            // Only attempt reconnection if it wasn't an intentional close
+            if (
+                !this.isReconnecting &&
+                this.optionManager.getOption("autoReconnect")
+            ) {
+                this.handleConnectionClosed();
+            }
         };
 
         this.socket.onerror = (event: Event) => {
+            // Emit the error but don't disconnect - let onclose handle it
             this.emit(ConnectionEvents.FAILED, event);
         };
 
@@ -114,19 +233,28 @@ class Connection extends EventEmitter {
         };
     }
 
+    public isConnected(): boolean {
+        return this.wsClient.isConnected();
+    }
+
     public disconnect(): void {
+        this.isReconnecting = false; // Prevent reconnection attempts
+        if (this.pingTimeout) {
+            clearTimeout(this.pingTimeout);
+            this.pingTimeout = undefined;
+        }
+        if (this.reconnectTimeout) {
+            clearTimeout(this.reconnectTimeout);
+        }
         this.emit(ConnectionEvents.CLOSING);
         this.wsClient.disconnect();
         this.emit(ConnectionEvents.CLOSED);
     }
 
     public reset(): void {
-        if (this.socket) {
-            this.emit(ConnectionEvents.CLOSING);
-        }
-
+        this.disconnect();
+        this.reconnectAttempts = 0;
         this.wsClient.reset();
-        this.emit(ConnectionEvents.CLOSED);
 
         this.removeAllListeners();
         Connection.instances.delete(this.instanceId);

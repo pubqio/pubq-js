@@ -64,6 +64,10 @@ export class SocketChannel extends BaseChannel {
     }
 
     public async publish(message: any): Promise<void> {
+        if (!this.wsClient.isConnected()) {
+            throw new Error("Cannot publish: WebSocket is not connected");
+        }
+
         try {
             const publishMessage = {
                 action: ChannelActions.PUBLISH,
@@ -79,6 +83,10 @@ export class SocketChannel extends BaseChannel {
     }
 
     public subscribe(callback: (message: any) => void): void {
+        if (!this.wsClient.isConnected()) {
+            throw new Error("Cannot subscribe: WebSocket is not connected");
+        }
+
         if (this.isSubscribed()) {
             return;
         }
@@ -94,6 +102,10 @@ export class SocketChannel extends BaseChannel {
     }
 
     public unsubscribe(): void {
+        if (!this.wsClient.isConnected()) {
+            throw new Error("Cannot unsubscribe: WebSocket is not connected");
+        }
+
         if (!this.isSubscribed()) {
             return;
         }
