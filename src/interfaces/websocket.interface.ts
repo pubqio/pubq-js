@@ -8,4 +8,6 @@ export interface PubQWebSocket {
     close(): void;
     send(data: string | ArrayBufferLike | Blob | ArrayBufferView): void;
     readyState: number;
+    addEventListener(event: string, listener: (event: any) => void): void;
+    removeEventListener(event: string, listener: (event: any) => void): void;
 }
