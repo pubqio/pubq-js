@@ -6,6 +6,7 @@ import { PubQWebSocket } from "interfaces/websocket.interface";
 import { IncomingMessage } from "interfaces/message.interface";
 import { ConnectionActions } from "types/action.type";
 import { AuthManager } from "./auth-manager";
+import { Logger } from "utils/logger";
 
 class Connection extends EventEmitter {
     private static instances: Map<string, Connection> = new Map();
@@ -13,6 +14,7 @@ class Connection extends EventEmitter {
     private optionManager: OptionManager;
     private authManager: AuthManager;
     private wsClient: WebSocketClient;
+    private logger: Logger;
     private socket: PubQWebSocket | null = null;
     private reconnectAttempts: number = 0;
     private reconnectTimeout?: NodeJS.Timeout;
@@ -25,7 +27,21 @@ class Connection extends EventEmitter {
         this.optionManager = OptionManager.getInstance(this.instanceId);
         this.authManager = AuthManager.getInstance(this.instanceId);
         this.wsClient = WebSocketClient.getInstance(this.instanceId);
+        this.logger = new Logger(this.instanceId, "Connection");
 
+        this.setupAuthListeners();
+        this.logger.info("Connection instance initialized");
+        this.emit(ConnectionEvents.INITIALIZED);
+    }
+
+    public static getInstance(instanceId: string): Connection {
+        if (!Connection.instances.has(instanceId)) {
+            Connection.instances.set(instanceId, new Connection(instanceId));
+        }
+        return Connection.instances.get(instanceId)!;
+    }
+
+    private setupAuthListeners(): void {
         this.authManager.on(
             AuthEvents.TOKEN_EXPIRED,
             this.handleTokenExpired.bind(this)
@@ -38,27 +54,17 @@ class Connection extends EventEmitter {
             AuthEvents.AUTH_ERROR,
             this.handleAuthError.bind(this)
         );
-
-        this.emit(ConnectionEvents.INITIALIZED);
-    }
-
-    public static getInstance(instanceId: string): Connection {
-        if (!Connection.instances.has(instanceId)) {
-            Connection.instances.set(instanceId, new Connection(instanceId));
-        }
-        return Connection.instances.get(instanceId)!;
+        this.logger.debug("Auth listeners configured");
     }
 
     private setupPingHandler(): void {
         if (!this.socket) return;
 
         const PING_TIMEOUT =
-            this.optionManager.getOption("pingTimeoutMs") || 60000; // Default 60s
+            this.optionManager.getOption("pingTimeoutMs") || 60000;
 
-        // Handle pong messages to reset the ping timer
         this.socket.onping = () => {
-            console.log("ping");
-            // Reset the ping timeout
+            this.logger.debug("Ping received from server");
             if (this.pingTimeout) clearTimeout(this.pingTimeout);
 
             this.pingTimeout = setTimeout(() => {
@@ -66,33 +72,43 @@ class Connection extends EventEmitter {
             }, PING_TIMEOUT);
         };
 
-        // Automatically send pong responses
         this.socket.onpong = () => {
-            console.log("pong");
-            // Optional: can be used for connection quality monitoring
+            this.logger.debug("Pong received from server");
         };
+
+        this.logger.debug("Ping handler configured");
     }
 
     private handleConnectionInterrupted(): void {
+        this.logger.warn(
+            "Connection interrupted - no ping received within timeout period"
+        );
         if (this.pingTimeout) {
             clearTimeout(this.pingTimeout);
             this.pingTimeout = undefined;
         }
         this.disconnect();
-        this.handleConnectionClosed(); // This will trigger reconnection if enabled
+        this.handleConnectionClosed();
     }
 
     private async handleConnectionClosed() {
-        // Don't attempt reconnection if we're already disconnecting
-        if (this.socket?.readyState === WebSocket.CLOSING) return;
+        if (this.socket?.readyState === WebSocket.CLOSING) {
+            this.logger.debug(
+                "Connection close handled - socket already closing"
+            );
+            return;
+        }
 
         if (this.optionManager.getOption("autoReconnect")) {
+            this.logger.info("Initiating automatic reconnection");
             await this.attemptReconnection();
         }
     }
 
     private calculateReconnectDelay(): number {
-        const initial = this.optionManager.getOption("initialReconnectDelayMs")!;
+        const initial = this.optionManager.getOption(
+            "initialReconnectDelayMs"
+        )!;
         const max = this.optionManager.getOption("maxReconnectDelayMs")!;
         const multiplier = this.optionManager.getOption(
             "reconnectBackoffMultiplier"
@@ -103,17 +119,27 @@ class Connection extends EventEmitter {
     }
 
     private async attemptReconnection() {
-        if (this.isReconnecting) return;
+        if (this.isReconnecting) {
+            this.logger.debug("Reconnection already in progress");
+            return;
+        }
 
         const maxAttempts = this.optionManager.getOption(
             "maxReconnectAttempts"
         )!;
-
         this.isReconnecting = true;
+        this.logger.info(
+            `Starting reconnection attempts (max: ${maxAttempts})`
+        );
 
         while (this.reconnectAttempts < maxAttempts) {
             try {
                 const delay = this.calculateReconnectDelay();
+                this.logger.debug(
+                    `Reconnection attempt ${
+                        this.reconnectAttempts + 1
+                    }/${maxAttempts} after ${delay}ms`
+                );
 
                 this.emit(ConnectionEvents.CONNECTING, {
                     isReconnection: true,
@@ -126,14 +152,16 @@ class Connection extends EventEmitter {
 
                 await this.connect();
 
-                // Connection successful
+                this.logger.info("Reconnection successful");
                 this.reconnectAttempts = 0;
                 this.isReconnecting = false;
                 return;
             } catch (error) {
                 this.reconnectAttempts++;
+                this.logger.warn(`Reconnection attempt failed: ${error}`);
 
                 if (this.reconnectAttempts >= maxAttempts) {
+                    this.logger.error("Max reconnection attempts reached");
                     this.emit(ConnectionEvents.FAILED, {
                         error,
                         context: "reconnection",
@@ -191,6 +219,7 @@ class Connection extends EventEmitter {
         if (!this.socket) return;
 
         this.socket.onopen = () => {
+            this.logger.info("WebSocket connection opened");
             this.reconnectAttempts = 0;
             this.isReconnecting = false;
             this.emit(ConnectionEvents.OPENED);
@@ -198,6 +227,9 @@ class Connection extends EventEmitter {
         };
 
         this.socket.onclose = (event: CloseEvent) => {
+            this.logger.info(
+                `WebSocket connection closed: ${event.code} ${event.reason}`
+            );
             if (this.pingTimeout) {
                 clearTimeout(this.pingTimeout);
                 this.pingTimeout = undefined;
@@ -215,22 +247,26 @@ class Connection extends EventEmitter {
         };
 
         this.socket.onerror = (event: Event) => {
-            // Emit the error but don't disconnect - let onclose handle it
+            this.logger.error("WebSocket connection error:", event);
             this.emit(ConnectionEvents.FAILED, event);
         };
 
         this.socket.onmessage = (event: MessageEvent) => {
             try {
                 const message: IncomingMessage = JSON.parse(event.data);
+                this.logger.debug("Received message:", message);
                 if (message.action === ConnectionActions.CONNECTED) {
                     this.emit(ConnectionEvents.CONNECTED, message);
                 } else if (message.action === ConnectionActions.DISCONNECTED) {
                     this.emit(ConnectionEvents.DISCONNECTED);
                 }
             } catch (error) {
+                this.logger.error("Error processing message:", error);
                 this.emit(ConnectionEvents.FAILED, error);
             }
         };
+
+        this.logger.debug("Socket listeners configured");
     }
 
     public isConnected(): boolean {

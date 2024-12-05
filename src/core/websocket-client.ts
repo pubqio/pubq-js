@@ -1,19 +1,26 @@
 import { PubQWebSocket } from "interfaces/websocket.interface";
+import { Logger } from "../utils/logger";
 
 class WebSocketClient {
     private static instances: Map<string, WebSocketClient> = new Map();
     private instanceId: string;
     private socket: PubQWebSocket | null = null;
     private WebSocketImplementation: any;
+    private logger: Logger;
 
     private constructor(instanceId: string) {
         this.instanceId = instanceId;
+        this.logger = new Logger(instanceId, "WebSocketClient");
+
         if (typeof window !== "undefined" && window.WebSocket) {
             this.WebSocketImplementation = window.WebSocket;
         } else {
             try {
                 this.WebSocketImplementation = require("ws");
             } catch (e) {
+                this.logger.error(
+                    "WebSocket is not supported in this environment"
+                );
                 throw new Error(
                     "WebSocket is not supported in this environment"
                 );
@@ -37,15 +44,15 @@ class WebSocketClient {
 
     public connect(url: string): void {
         if (this.socket) {
-            // If there's an existing socket, close it first
+            this.logger.info("Closing existing WebSocket connection");
             this.disconnect();
         }
 
+        this.logger.info(`Connecting to WebSocket at ${url}`);
         this.socket = new this.WebSocketImplementation(url) as PubQWebSocket;
 
-        // Error handler at WebSocketClient level
         this.socket.onerror = (error: Event) => {
-            console.error("WebSocket error:", error);
+            this.logger.error("WebSocket error:", error);
             // Don't disconnect here - let the Connection class handle it
         };
     }
@@ -60,9 +67,10 @@ class WebSocketClient {
         if (this.socket) {
             if (this.socket.readyState < WebSocket.CLOSING) {
                 try {
+                    this.logger.info("Closing WebSocket connection");
                     this.socket.close();
                 } catch (error) {
-                    console.error("Error closing socket:", error);
+                    this.logger.error("Error closing socket:", error);
                 }
             }
             this.socket = null;
@@ -71,12 +79,15 @@ class WebSocketClient {
 
     public send(data: string | ArrayBufferLike | Blob | ArrayBufferView): void {
         if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
+            this.logger.error("Attempted to send data on a closed WebSocket");
             throw new Error("WebSocket is not connected");
         }
+        this.logger.debug(`Sending data: ${data}`);
         this.socket.send(data);
     }
 
     public reset(): void {
+        this.logger.info("Resetting WebSocketClient instance");
         WebSocketClient.instances.delete(this.instanceId);
     }
 }

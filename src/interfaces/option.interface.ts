@@ -36,6 +36,10 @@ export interface Option {
     authenticateRetryIntervalMs?: number;
 
     pingTimeoutMs?: number;
+
+    debug?: boolean;
+    logLevel?: "error" | "warn" | "info" | "debug" | "trace";
+    logger?: (level: string, message: string, ...args: any[]) => void;
 }
 
 export const DEFAULT_OPTIONS: Option = {
@@ -64,4 +68,7 @@ export const DEFAULT_OPTIONS: Option = {
     authenticateRetryIntervalMs: 1000,
 
     pingTimeoutMs: 10000,
+
+    debug: false,
+    logLevel: "error",
 };

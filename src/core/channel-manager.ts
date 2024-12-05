@@ -5,16 +5,19 @@ import { RestChannel } from "./rest-channel";
 import { HttpClient } from "./http-client";
 import { AuthManager } from "./auth-manager";
 import { OptionManager } from "./option-manager";
+import { Logger } from "../utils/logger";
 
 export class SocketChannelManager implements ChannelManager {
     private static instances: Map<string, SocketChannelManager> = new Map();
     private instanceId: string;
     private channels: Map<string, SocketChannel> = new Map();
     private wsClient: WebSocketClient;
+    private logger: Logger;
 
     constructor(instanceId: string) {
         this.instanceId = instanceId;
         this.wsClient = WebSocketClient.getInstance(this.instanceId);
+        this.logger = new Logger(instanceId, "SocketChannelManager");
     }
 
     public static getInstance(instanceId: string): SocketChannelManager {
@@ -29,6 +32,7 @@ export class SocketChannelManager implements ChannelManager {
 
     public get(channelName: string): SocketChannel {
         if (!this.channels.has(channelName)) {
+            this.logger.debug(`Creating new socket channel: ${channelName}`);
             this.channels.set(
                 channelName,
                 new SocketChannel(channelName, this.wsClient)
@@ -39,6 +43,7 @@ export class SocketChannelManager implements ChannelManager {
     }
 
     public reset(): void {
+        this.logger.debug("Resetting all socket channels");
         // Reset all channels
         this.channels.forEach((channel) => channel.reset());
         this.channels.clear();
@@ -55,12 +60,14 @@ export class RestChannelManager implements ChannelManager {
     private httpClient: HttpClient;
     private authManager: AuthManager;
     private optionManager: OptionManager;
+    private logger: Logger;
 
     constructor(instanceId: string) {
         this.instanceId = instanceId;
         this.httpClient = new HttpClient();
         this.authManager = AuthManager.getInstance(this.instanceId);
         this.optionManager = OptionManager.getInstance(this.instanceId);
+        this.logger = new Logger(instanceId, "RestChannelManager");
     }
 
     public static getInstance(instanceId: string): RestChannelManager {
@@ -75,6 +82,7 @@ export class RestChannelManager implements ChannelManager {
 
     public get(channelName: string): RestChannel {
         if (!this.channels.has(channelName)) {
+            this.logger.debug(`Creating new REST channel: ${channelName}`);
             this.channels.set(
                 channelName,
                 new RestChannel(
@@ -90,6 +98,7 @@ export class RestChannelManager implements ChannelManager {
     }
 
     public reset(): void {
+        this.logger.debug("Resetting all REST channels");
         // Reset all channels
         this.channels.forEach((channel) => channel.reset());
         this.channels.clear();

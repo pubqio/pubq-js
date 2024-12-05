@@ -11,6 +11,7 @@ import {
 import { Crypto } from "utils/crypto";
 import { ApiKey } from "utils/api-key";
 import { AuthEvents } from "types/event.type";
+import { Logger } from "utils/logger";
 
 class AuthManager extends EventEmitter {
     private static instances: Map<string, AuthManager> = new Map();
@@ -19,15 +20,18 @@ class AuthManager extends EventEmitter {
     private httpClient: HttpClient;
     private currentToken: string | null = null;
     private refreshTimeout?: NodeJS.Timeout;
+    private logger: Logger;
 
     private constructor(instanceId: string) {
         super();
         this.instanceId = instanceId;
         this.optionManager = OptionManager.getInstance(instanceId);
         this.httpClient = new HttpClient();
+        this.logger = new Logger(instanceId, "AuthManager");
 
         const tokenRequest = this.optionManager.getOption("tokenRequest");
         if (tokenRequest) {
+            this.logger.debug("Initial token request found, requesting token");
             this.requestToken(tokenRequest).catch((error) => {
                 this.emit(AuthEvents.TOKEN_ERROR, error);
             });
@@ -49,6 +53,8 @@ class AuthManager extends EventEmitter {
             error instanceof Error
                 ? new Error(`${context}: ${error.message}`)
                 : new Error(`${context}: Unknown error`);
+
+        this.logger.error(`${context}:`, error);
 
         // Emit appropriate event based on context
         if (context.includes("token")) {
@@ -72,27 +78,36 @@ class AuthManager extends EventEmitter {
             this.optionManager.getOption("authenticateRetryIntervalMs") || 1000;
         const tokenRequest = this.optionManager.getOption("tokenRequest");
 
+        this.logger.info(`Starting authentication (retries: ${retries})`);
+
         for (let attempt = 0; attempt <= retries; attempt++) {
             try {
                 if (tokenRequest) {
+                    this.logger.debug("Using token request for authentication");
                     return await this.requestToken(tokenRequest);
                 }
 
                 const response = await this._authenticate();
 
                 if (response?.tokenRequest) {
+                    this.logger.debug(
+                        "Received token request in response, requesting token"
+                    );
                     return await this.requestToken(response.tokenRequest);
                 }
 
                 return response;
             } catch (error) {
                 const isLastAttempt = attempt === retries;
+                this.logger.warn(
+                    `Authentication attempt ${attempt + 1} failed`
+                );
 
                 if (isLastAttempt) {
                     return this.handleError(error, "Authentication failed");
                 }
 
-                // Wait before retry
+                this.logger.debug(`Retrying in ${retryInterval}ms`);
                 await new Promise((resolve) =>
                     setTimeout(resolve, retryInterval)
                 );
@@ -150,6 +165,7 @@ class AuthManager extends EventEmitter {
     }
 
     private setToken(token: string): void {
+        this.logger.debug("Setting new token");
         this.currentToken = token;
         this.emit(AuthEvents.TOKEN_UPDATED, token);
         this.scheduleTokenRefresh(token);
@@ -177,21 +193,26 @@ class AuthManager extends EventEmitter {
             const delay = payload.exp * 1000 - Date.now() - buffer;
 
             if (delay > 0) {
+                this.logger.debug(`Scheduling token refresh in ${delay}ms`);
                 this.refreshTimeout = setTimeout(() => {
+                    this.logger.info("Token expired, clearing token");
                     this.emit(AuthEvents.TOKEN_EXPIRED);
                     this.clearToken();
                 }, delay);
             } else {
+                this.logger.warn("Token already expired or about to expire");
                 this.emit(AuthEvents.TOKEN_EXPIRED);
                 this.clearToken();
             }
         } catch (error) {
+            this.logger.error("Error scheduling token refresh:", error);
             this.emit(AuthEvents.TOKEN_ERROR, error);
             this.clearToken();
         }
     }
 
     public clearToken(): void {
+        this.logger.debug("Clearing token");
         this.currentToken = null;
         if (this.refreshTimeout) {
             clearTimeout(this.refreshTimeout);
@@ -427,6 +448,7 @@ class AuthManager extends EventEmitter {
     }
 
     public reset(): void {
+        this.logger.info("Resetting auth manager");
         this.clearToken();
         this.removeAllListeners();
         AuthManager.instances.delete(this.instanceId);
