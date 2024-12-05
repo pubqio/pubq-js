@@ -92,8 +92,8 @@ class Connection extends EventEmitter {
     }
 
     private calculateReconnectDelay(): number {
-        const initial = this.optionManager.getOption("initialReconnectDelay")!;
-        const max = this.optionManager.getOption("maxReconnectDelay")!;
+        const initial = this.optionManager.getOption("initialReconnectDelayMs")!;
+        const max = this.optionManager.getOption("maxReconnectDelayMs")!;
         const multiplier = this.optionManager.getOption(
             "reconnectBackoffMultiplier"
         )!;

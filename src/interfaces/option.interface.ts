@@ -21,17 +21,17 @@ export interface Option {
 
     autoConnect?: boolean;
     autoReconnect?: boolean;
-    autoResubscribe?: boolean;
+    autoResubscribe?: boolean; // Not used yet
     autoAuthenticate?: boolean;
 
-    connectTimeout?: number;
+    connectTimeoutMs?: number; // Not used yet
 
     maxReconnectAttempts?: number;
-    initialReconnectDelay?: number;
-    maxReconnectDelay?: number;
+    initialReconnectDelayMs?: number;
+    maxReconnectDelayMs?: number;
     reconnectBackoffMultiplier?: number;
 
-    resubscribeIntervalMs?: number;
+    resubscribeIntervalMs?: number; // Not used yet
     authenticateRetries?: number;
     authenticateRetryIntervalMs?: number;
 
@@ -52,13 +52,13 @@ export const DEFAULT_OPTIONS: Option = {
     autoResubscribe: true,
     autoAuthenticate: true,
 
-    connectTimeout: 3000,
+    connectTimeoutMs: 5000,
 
     maxReconnectAttempts: 10,
-    initialReconnectDelay: 1000,
-    maxReconnectDelay: 30000,
+    initialReconnectDelayMs: 1000,
+    maxReconnectDelayMs: 30000,
     reconnectBackoffMultiplier: 1.5,
-    
+
     resubscribeIntervalMs: 1000,
     authenticateRetries: 3,
     authenticateRetryIntervalMs: 1000,
