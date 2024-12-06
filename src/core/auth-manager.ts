@@ -222,15 +222,23 @@ class AuthManager extends EventEmitter {
     public getAuthHeaders(): HeadersInit {
         const apiKey = this.optionManager.getOption("apiKey");
         const token = this.getToken();
+        const clientId = this.optionManager.getOption("clientId");
 
         if (token) {
             return {
                 Authorization: `Bearer ${token}`,
             };
         } else if (apiKey) {
-            return {
+            const headers: HeadersInit = {
                 Authorization: `Basic ${btoa(apiKey)}`,
             };
+            
+            // Add clientId header for basic auth if provided
+            if (clientId) {
+                headers["X-Client-ID"] = clientId;
+            }
+            
+            return headers;
         }
 
         return this.handleError(
@@ -242,11 +250,19 @@ class AuthManager extends EventEmitter {
     public getAuthQueryParams(): string {
         const apiKey = this.optionManager.getOption("apiKey");
         const token = this.getToken();
+        const clientId = this.optionManager.getOption("clientId");
 
         if (token) {
             return `access_token=${encodeURIComponent(token)}`;
         } else if (apiKey) {
-            return `api_key=${encodeURIComponent(apiKey)}`;
+            let params = `api_key=${encodeURIComponent(apiKey)}`;
+            
+            // Add clientId query param for basic auth if provided
+            if (clientId) {
+                params += `&client_id=${encodeURIComponent(clientId)}`;
+            }
+            
+            return params;
         }
 
         return this.handleError(
