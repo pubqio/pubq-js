@@ -42,6 +42,37 @@ export class SocketChannelManager implements ChannelManager {
         return this.channels.get(channelName)!;
     }
 
+    public getAllChannels(): SocketChannel[] {
+        return Array.from(this.channels.values());
+    }
+
+    public pendingSubscribeAllChannels(): void {
+        const channels = this.getAllChannels();
+        for (const channel of channels) {
+            channel.setPendingSubscribe(true);
+        }
+    }
+
+    public async resubscribeAllChannels(): Promise<void> {
+        const channels = this.getAllChannels();
+
+        this.logger.debug(`Resubscribing to ${channels.length} channels`);
+
+        for (const channel of channels) {
+            try {
+                await channel.resubscribe();
+                this.logger.debug(
+                    `Resubscribed to channel: ${channel.getName()}`
+                );
+            } catch (error) {
+                this.logger.error(
+                    `Failed to resubscribe to channel ${channel.getName()}:`,
+                    error
+                );
+            }
+        }
+    }
+
     public reset(): void {
         this.logger.debug("Resetting all socket channels");
         // Reset all channels

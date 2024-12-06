@@ -7,6 +7,7 @@ import { IncomingMessage } from "interfaces/message.interface";
 import { ConnectionActions } from "types/action.type";
 import { AuthManager } from "./auth-manager";
 import { Logger } from "utils/logger";
+import { SocketChannelManager } from "./channel-manager";
 
 class Connection extends EventEmitter {
     private static instances: Map<string, Connection> = new Map();
@@ -14,6 +15,7 @@ class Connection extends EventEmitter {
     private optionManager: OptionManager;
     private authManager: AuthManager;
     private wsClient: WebSocketClient;
+    private channelManager: SocketChannelManager;
     private logger: Logger;
     private socket: PubQWebSocket | null = null;
     private reconnectAttempts: number = 0;
@@ -27,6 +29,7 @@ class Connection extends EventEmitter {
         this.optionManager = OptionManager.getInstance(this.instanceId);
         this.authManager = AuthManager.getInstance(this.instanceId);
         this.wsClient = WebSocketClient.getInstance(this.instanceId);
+        this.channelManager = SocketChannelManager.getInstance(this.instanceId);
         this.logger = new Logger(this.instanceId, "Connection");
 
         this.setupAuthListeners();
@@ -85,6 +88,10 @@ class Connection extends EventEmitter {
             this.isReconnecting = false;
             this.emit(ConnectionEvents.OPENED);
             this.setupPingHandler();
+
+            if (this.optionManager.getOption("autoResubscribe")) {
+                this.channelManager.resubscribeAllChannels();
+            }
         };
 
         this.socket.onclose = (event: CloseEvent) => {
@@ -98,6 +105,8 @@ class Connection extends EventEmitter {
 
             this.emit(ConnectionEvents.CLOSED);
 
+            this.channelManager.pendingSubscribeAllChannels();
+
             // Only attempt reconnection if it wasn't an intentional close
             if (
                 !this.isReconnecting &&
@@ -109,6 +118,7 @@ class Connection extends EventEmitter {
 
         this.socket.onerror = (event: Event) => {
             this.logger.error("WebSocket connection error:", event);
+            this.channelManager.pendingSubscribeAllChannels();
             this.emit(ConnectionEvents.FAILED, event);
         };
 

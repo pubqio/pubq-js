@@ -7,7 +7,9 @@ import { IncomingChannelMessage } from "interfaces/message.interface";
 export class SocketChannel extends BaseChannel {
     private wsClient: WebSocketClient;
     private subscribed: boolean = false;
+    private pendingSubscribe: boolean = false;
     private messageCallback?: (message: any) => void;
+    private messageHandler?: (event: MessageEvent) => void;
 
     constructor(name: string, wsClient: WebSocketClient) {
         super(name);
@@ -21,7 +23,11 @@ export class SocketChannel extends BaseChannel {
             return;
         }
 
-        socket.onmessage = (event) => {
+        if (this.messageHandler) {
+            socket.removeEventListener("message", this.messageHandler);
+        }
+
+        this.messageHandler = (event) => {
             try {
                 const message = JSON.parse(
                     event.data
@@ -32,6 +38,7 @@ export class SocketChannel extends BaseChannel {
                 this.emit(ChannelEvents.FAILED, error);
             }
         };
+        socket.addEventListener("message", this.messageHandler);
     }
 
     private handleMessage(message: IncomingChannelMessage): void {
@@ -48,11 +55,13 @@ export class SocketChannel extends BaseChannel {
 
             case ChannelResponseActions.SUBSCRIBED:
                 this.subscribed = true;
+                this.pendingSubscribe = false;
                 this.emit(ChannelEvents.SUBSCRIBED);
                 break;
 
             case ChannelResponseActions.UNSUBSCRIBED:
                 this.subscribed = false;
+                this.pendingSubscribe = false;
                 this.messageCallback = undefined;
                 this.emit(ChannelEvents.UNSUBSCRIBED);
                 break;
@@ -84,21 +93,37 @@ export class SocketChannel extends BaseChannel {
 
     public subscribe(callback: (message: any) => void): void {
         if (!this.wsClient.isConnected()) {
+            this.pendingSubscribe = true;
             throw new Error("Cannot subscribe: WebSocket is not connected");
         }
 
-        if (this.isSubscribed()) {
+        if (this.isSubscribed() && !this.pendingSubscribe) {
             return;
         }
 
         this.emit(ChannelEvents.SUBSCRIBING);
         this.messageCallback = callback;
+        this.pendingSubscribe = false;
 
         const actionMessage = {
             action: ChannelActions.SUBSCRIBE,
             channel: this.name,
         };
         this.wsClient.send(JSON.stringify(actionMessage));
+    }
+
+    public async resubscribe(): Promise<void> {
+        if (!this.messageCallback || !this.pendingSubscribe) {
+            return;
+        }
+
+        try {
+            this.setupMessageHandler();
+            this.subscribe(this.messageCallback);
+        } catch (error) {
+            this.emit(ChannelEvents.FAILED, error);
+            throw error;
+        }
     }
 
     public unsubscribe(): void {
@@ -123,11 +148,27 @@ export class SocketChannel extends BaseChannel {
         return this.subscribed;
     }
 
+    public isPendingSubscribe(): boolean {
+        return this.pendingSubscribe;
+    }
+
+    public setPendingSubscribe(pending: boolean): void {
+        this.pendingSubscribe = pending;
+    }
+
     public reset(): void {
+        const socket = this.wsClient.getSocket();
+        if (socket && this.messageHandler) {
+            socket.removeEventListener("message", this.messageHandler);
+            this.messageHandler = undefined;
+        }
+
         if (this.isSubscribed()) {
             this.unsubscribe();
         }
+
         this.messageCallback = undefined;
+        this.pendingSubscribe = false;
         this.removeAllListeners();
     }
 }
