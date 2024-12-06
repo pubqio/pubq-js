@@ -41,6 +41,95 @@ class Connection extends EventEmitter {
         return Connection.instances.get(instanceId)!;
     }
 
+    private getAuthenticatedWsUrl(): string {
+        const secure = this.optionManager.getOption("isSecure");
+        const host = this.optionManager.getOption("wsHost");
+        const port = this.optionManager.getOption("wsPort");
+
+        const protocol = secure ? "wss" : "ws";
+        const baseUrl = `${protocol}://${host}${port ? `:${port}` : ""}/v1/`;
+
+        return this.authManager.getAuthenticateUrl(baseUrl);
+    }
+
+    public async connect(): Promise<void> {
+        try {
+            this.emit(ConnectionEvents.CONNECTING);
+
+            if (this.authManager.shouldAutoAuthenticate()) {
+                await this.authManager.authenticate();
+            }
+
+            const wsUrl = this.getAuthenticatedWsUrl();
+            this.wsClient.connect(wsUrl);
+
+            this.socket = this.wsClient.getSocket();
+            if (this.socket) {
+                this.setupSocketListeners();
+            }
+        } catch (error) {
+            this.handleAuthError(error as Error);
+        }
+    }
+
+    public isConnected(): boolean {
+        return this.wsClient.isConnected();
+    }
+
+    private setupSocketListeners(): void {
+        if (!this.socket) return;
+
+        this.socket.onopen = () => {
+            this.logger.info("WebSocket connection opened");
+            this.reconnectAttempts = 0;
+            this.isReconnecting = false;
+            this.emit(ConnectionEvents.OPENED);
+            this.setupPingHandler();
+        };
+
+        this.socket.onclose = (event: CloseEvent) => {
+            this.logger.info(
+                `WebSocket connection closed: ${event.code} ${event.reason}`
+            );
+            if (this.pingTimeout) {
+                clearTimeout(this.pingTimeout);
+                this.pingTimeout = undefined;
+            }
+
+            this.emit(ConnectionEvents.CLOSED);
+
+            // Only attempt reconnection if it wasn't an intentional close
+            if (
+                !this.isReconnecting &&
+                this.optionManager.getOption("autoReconnect")
+            ) {
+                this.handleConnectionClosed();
+            }
+        };
+
+        this.socket.onerror = (event: Event) => {
+            this.logger.error("WebSocket connection error:", event);
+            this.emit(ConnectionEvents.FAILED, event);
+        };
+
+        this.socket.onmessage = (event: MessageEvent) => {
+            try {
+                const message: IncomingMessage = JSON.parse(event.data);
+                this.logger.debug("Received message:", message);
+                if (message.action === ConnectionActions.CONNECTED) {
+                    this.emit(ConnectionEvents.CONNECTED, message);
+                } else if (message.action === ConnectionActions.DISCONNECTED) {
+                    this.emit(ConnectionEvents.DISCONNECTED);
+                }
+            } catch (error) {
+                this.logger.error("Error processing message:", error);
+                this.emit(ConnectionEvents.FAILED, error);
+            }
+        };
+
+        this.logger.debug("Socket listeners configured");
+    }
+
     private setupAuthListeners(): void {
         this.authManager.on(
             AuthEvents.TOKEN_EXPIRED,
@@ -99,10 +188,29 @@ class Connection extends EventEmitter {
             return;
         }
 
+        if (
+            this.reconnectAttempts >=
+            this.optionManager.getOption("maxReconnectAttempts")!
+        ) {
+            this.logger.debug(
+                "Max reconnection attempts reached - not attempting reconnection"
+            );
+            return;
+        }
+
         if (this.optionManager.getOption("autoReconnect")) {
             this.logger.info("Initiating automatic reconnection");
             await this.attemptReconnection();
         }
+    }
+
+    private async handleTokenExpired() {
+        await this.connect();
+    }
+
+    private handleAuthError(error: Error) {
+        this.emit(ConnectionEvents.FAILED, error);
+        this.disconnect();
     }
 
     private calculateReconnectDelay(): number {
@@ -150,12 +258,59 @@ class Connection extends EventEmitter {
 
                 await new Promise((resolve) => setTimeout(resolve, delay));
 
-                await this.connect();
+                // Create a promise that will resolve/reject based on the next connection attempt
+                const connectionPromise = new Promise((resolve, reject) => {
+                    let timeoutId: NodeJS.Timeout;
+                    let isHandled = false;
 
-                this.logger.info("Reconnection successful");
-                this.reconnectAttempts = 0;
-                this.isReconnecting = false;
-                return;
+                    // Connection timeout handler
+                    const connectionTimeout = () => {
+                        if (!isHandled) {
+                            isHandled = true;
+                            reject(new Error("Connection attempt timed out"));
+                        }
+                    };
+
+                    // Set a timeout for the connection attempt
+                    timeoutId = setTimeout(
+                        connectionTimeout,
+                        this.optionManager.getOption("connectTimeoutMs") ||
+                            10000
+                    );
+
+                    this.connect()
+                        .then(() => {
+                            if (!isHandled) {
+                                isHandled = true;
+                                clearTimeout(timeoutId);
+                                // Wait a brief moment to ensure the socket is properly established
+                                setTimeout(() => {
+                                    if (
+                                        this.socket?.readyState ===
+                                        WebSocket.OPEN
+                                    ) {
+                                        resolve(true);
+                                    } else {
+                                        reject(
+                                            new Error(
+                                                "WebSocket connection failed"
+                                            )
+                                        );
+                                    }
+                                }, 100);
+                            }
+                        })
+                        .catch((error) => {
+                            if (!isHandled) {
+                                isHandled = true;
+                                clearTimeout(timeoutId);
+                                reject(error);
+                            }
+                        });
+                });
+
+                await connectionPromise;
+                return; // Successfully connected
             } catch (error) {
                 this.reconnectAttempts++;
                 this.logger.warn(`Reconnection attempt failed: ${error}`);
@@ -173,104 +328,6 @@ class Connection extends EventEmitter {
                 }
             }
         }
-    }
-
-    private async handleTokenExpired() {
-        await this.connect();
-    }
-
-    private handleAuthError(error: Error) {
-        this.emit(ConnectionEvents.FAILED, error);
-        this.disconnect();
-    }
-
-    private getAuthenticatedWsUrl(): string {
-        const secure = this.optionManager.getOption("isSecure");
-        const host = this.optionManager.getOption("wsHost");
-        const port = this.optionManager.getOption("wsPort");
-
-        const protocol = secure ? "wss" : "ws";
-        const baseUrl = `${protocol}://${host}${port ? `:${port}` : ""}/v1/`;
-
-        return this.authManager.getAuthenticateUrl(baseUrl);
-    }
-
-    public async connect(): Promise<void> {
-        try {
-            this.emit(ConnectionEvents.CONNECTING);
-
-            if (this.authManager.shouldAutoAuthenticate()) {
-                await this.authManager.authenticate();
-            }
-
-            const wsUrl = this.getAuthenticatedWsUrl();
-            this.wsClient.connect(wsUrl);
-
-            this.socket = this.wsClient.getSocket();
-            if (this.socket) {
-                this.setupSocketListeners();
-            }
-        } catch (error) {
-            this.handleAuthError(error as Error);
-        }
-    }
-
-    private setupSocketListeners(): void {
-        if (!this.socket) return;
-
-        this.socket.onopen = () => {
-            this.logger.info("WebSocket connection opened");
-            this.reconnectAttempts = 0;
-            this.isReconnecting = false;
-            this.emit(ConnectionEvents.OPENED);
-            this.setupPingHandler();
-        };
-
-        this.socket.onclose = (event: CloseEvent) => {
-            this.logger.info(
-                `WebSocket connection closed: ${event.code} ${event.reason}`
-            );
-            if (this.pingTimeout) {
-                clearTimeout(this.pingTimeout);
-                this.pingTimeout = undefined;
-            }
-
-            this.emit(ConnectionEvents.CLOSED);
-
-            // Only attempt reconnection if it wasn't an intentional close
-            if (
-                !this.isReconnecting &&
-                this.optionManager.getOption("autoReconnect")
-            ) {
-                this.handleConnectionClosed();
-            }
-        };
-
-        this.socket.onerror = (event: Event) => {
-            this.logger.error("WebSocket connection error:", event);
-            this.emit(ConnectionEvents.FAILED, event);
-        };
-
-        this.socket.onmessage = (event: MessageEvent) => {
-            try {
-                const message: IncomingMessage = JSON.parse(event.data);
-                this.logger.debug("Received message:", message);
-                if (message.action === ConnectionActions.CONNECTED) {
-                    this.emit(ConnectionEvents.CONNECTED, message);
-                } else if (message.action === ConnectionActions.DISCONNECTED) {
-                    this.emit(ConnectionEvents.DISCONNECTED);
-                }
-            } catch (error) {
-                this.logger.error("Error processing message:", error);
-                this.emit(ConnectionEvents.FAILED, error);
-            }
-        };
-
-        this.logger.debug("Socket listeners configured");
-    }
-
-    public isConnected(): boolean {
-        return this.wsClient.isConnected();
     }
 
     public disconnect(): void {
