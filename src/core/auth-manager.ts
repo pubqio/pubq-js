@@ -344,7 +344,7 @@ class AuthManager extends EventEmitter {
             const isSecure = this.optionManager.getOption("isSecure");
             const protocol = isSecure ? "https" : "http";
             const baseUrl = `${protocol}://${host}${port ? `:${port}` : ""}/v1`;
-            const url = `${baseUrl}/key/${apiKeyId}/issue-token`;
+            const url = `${baseUrl}/key/${apiKeyId}/token/issue`;
 
             const response = await this.httpClient.post<{ token: string }>(
                 url, // PubQ token endpoint
@@ -437,7 +437,7 @@ class AuthManager extends EventEmitter {
             const isSecure = this.optionManager.getOption("isSecure");
             const protocol = isSecure ? "https" : "http";
             const baseUrl = `${protocol}://${host}${port ? `:${port}` : ""}/v1`;
-            const url = `${baseUrl}/keys/${request.kid}/request-token`;
+            const url = `${baseUrl}/key/${request.kid}/token/request`;
 
             const response = await this.httpClient.post<AuthResponse>(
                 url,
