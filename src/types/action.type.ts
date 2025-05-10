@@ -1,35 +1,80 @@
-// Channel-related outgoing actions
-export const ChannelActions = {
-    SUBSCRIBE: "subscribe",
-    UNSUBSCRIBE: "unsubscribe",
-    PUBLISH: "publish",
-} as const;
+// Action types enum matching backend protocol
+export enum ActionType {
+    // Connection actions
+    CONNECT = 0,
+    CONNECTED = 1,
+    DISCONNECT = 2,
+    DISCONNECTED = 3,
 
-export type ChannelAction =
-    (typeof ChannelActions)[keyof typeof ChannelActions];
+    // Channel actions
+    SUBSCRIBE = 4,
+    SUBSCRIBED = 5,
+    UNSUBSCRIBE = 6,
+    UNSUBSCRIBED = 7,
 
-// Channel-related incoming actions
-export const ChannelResponseActions = {
-    SUBSCRIBED: "subscribed", // Subscribed to a channel
-    UNSUBSCRIBED: "unsubscribed", // Unsubscribed from a channel
-    PUBLISHED: "published", // Published a message to a channel
-    FAILED: "failed", // Failed to subscribe or publish
-    MESSAGE: "message", // New message received action
-} as const;
+    // Data Message actions
+    PUBLISH = 8,
+    PUBLISHED = 9,
+    MESSAGE = 10,
 
-export type ChannelResponseAction =
-    (typeof ChannelResponseActions)[keyof typeof ChannelResponseActions];
+    // Error actions
+    ERROR = 11
+}
 
-// Connection-related actions
-export const ConnectionActions = {
-    CONNECTED: "connected",
-    DISCONNECTED: "disconnected",
-    FAILED: "failed",
-} as const;
+// Action type string mapping
+export const ActionStrings: Record<ActionType, string> = {
+    [ActionType.CONNECT]: "connect",
+    [ActionType.CONNECTED]: "connected",
+    [ActionType.DISCONNECT]: "disconnect",
+    [ActionType.DISCONNECTED]: "disconnected",
+    [ActionType.SUBSCRIBE]: "subscribe",
+    [ActionType.SUBSCRIBED]: "subscribed",
+    [ActionType.UNSUBSCRIBE]: "unsubscribe",
+    [ActionType.UNSUBSCRIBED]: "unsubscribed",
+    [ActionType.PUBLISH]: "publish",
+    [ActionType.PUBLISHED]: "published",
+    [ActionType.MESSAGE]: "message",
+    [ActionType.ERROR]: "error"
+};
 
-export type ConnectionAction =
-    (typeof ConnectionActions)[keyof typeof ConnectionActions];
+// Helper to convert ActionType to string
+export function actionToString(action: ActionType): string {
+    return ActionStrings[action];
+}
+
+// Grouping of action types for type safety
+export const ConnectionActions = [
+    ActionType.CONNECT,
+    ActionType.CONNECTED,
+    ActionType.DISCONNECT,
+    ActionType.DISCONNECTED
+] as const;
+
+export type ConnectionAction = typeof ConnectionActions[number];
+
+export const ChannelActions = [
+    ActionType.SUBSCRIBE,
+    ActionType.UNSUBSCRIBE,
+    ActionType.PUBLISH
+] as const;
+
+export type ChannelAction = typeof ChannelActions[number];
+
+export const ChannelResponseActions = [
+    ActionType.SUBSCRIBED,
+    ActionType.UNSUBSCRIBED,
+    ActionType.PUBLISHED,
+    ActionType.MESSAGE
+] as const;
+
+export type ChannelResponseAction = typeof ChannelResponseActions[number];
+
+export const ErrorActions = [
+    ActionType.ERROR
+] as const;
+
+export type ErrorAction = typeof ErrorActions[number];
 
 // Combined types for message interfaces
-export type OutgoingAction = ChannelAction;
-export type IncomingAction = ChannelResponseAction | ConnectionAction;
+export type OutgoingAction = ActionType.CONNECT | ActionType.DISCONNECT | ActionType.SUBSCRIBE | ActionType.UNSUBSCRIBE | ActionType.PUBLISH;
+export type IncomingAction = ActionType.CONNECTED | ActionType.DISCONNECTED | ActionType.SUBSCRIBED | ActionType.UNSUBSCRIBED | ActionType.PUBLISHED | ActionType.MESSAGE | ActionType.ERROR;

@@ -1,44 +1,117 @@
-import {
-    ChannelAction,
-    ChannelResponseAction,
-    ConnectionAction,
-    OutgoingAction,
-    IncomingAction
-} from "types/action.type";
+import { ActionType, OutgoingAction, IncomingAction, ConnectionAction, ChannelAction, ChannelResponseAction } from "types/action.type";
 
-// Base interface for all messages
-export interface BaseMessage<T = any> {
-    action: OutgoingAction | IncomingAction;
-    data: T;
+// Error information interface matching backend protocol
+export interface ErrorInfo {
+    code: number;
+    href: string;
+    message: string;
+    statusCode: number;
 }
 
-// Base interface for outgoing messages
-export interface OutgoingMessage<T = any> extends BaseMessage<T> {
+// Base interface for all messages
+export interface BaseMessage {
+    action: ActionType;
+    error?: ErrorInfo;
+}
+
+// Connection details interface
+export interface ConnectionDetails {
+    clientId: string;
+    serverId: string;
+}
+
+// Connection message interface
+export interface ConnectionMessage extends BaseMessage {
+    action: ConnectionAction;
+    connectionId: string;
+    connectionDetails?: ConnectionDetails;
+}
+
+// Channel message interface
+export interface ChannelMessage extends BaseMessage {
+    channel: string;
+    subscriptionId?: string;
+}
+
+// Data message payload interface
+export interface DataMessagePayload {
+    clientId?: string;
+    event?: string;
+    payload?: any;
+}
+
+// Data message interface for publishing and receiving messages
+export interface DataMessage extends BaseMessage {
+    id?: string;
+    timestamp?: string;
+    channel: string;
+    messages?: DataMessagePayload[];
+}
+
+// REST channel publish request payload interface
+export interface RestPublishRequest {
+    channels?: string[];
+    clientId?: string;
+    event?: string;
+    data?: any;
+}
+
+// Outgoing message types
+export interface OutgoingMessage extends BaseMessage {
     action: OutgoingAction;
 }
 
-// Base interface for incoming messages
-export interface IncomingMessage<T = any> extends BaseMessage<T> {
+// Outgoing connection message
+export interface OutgoingConnectionMessage extends OutgoingMessage {
+    action: ActionType.CONNECT | ActionType.DISCONNECT;
+    connectionId?: string;
+    connectionDetails?: ConnectionDetails;
+}
+
+// Outgoing channel message
+export interface OutgoingChannelMessage extends OutgoingMessage {
+    action: ActionType.SUBSCRIBE | ActionType.UNSUBSCRIBE;
+    channel: string;
+    subscriptionId?: string;
+}
+
+// Outgoing data message
+export interface OutgoingDataMessage extends OutgoingMessage {
+    action: ActionType.PUBLISH;
+    channel: string;
+    messages: DataMessagePayload[];
+}
+
+// Incoming message types
+export interface IncomingMessage extends BaseMessage {
     action: IncomingAction;
 }
 
-// Base interface for channel-related messages
-export interface ChannelMessage<T = any> extends BaseMessage<T> {
-    channel: string;
-}
-
-// Outgoing channel messages (publish, subscribe, unsubscribe)
-export interface OutgoingChannelMessage<T = any> extends OutgoingMessage<T>, ChannelMessage<T> {
-    action: ChannelAction;
-}
-
-// Incoming channel messages (published, subscribed, unsubscribed, failed)
-export interface IncomingChannelMessage<T = any> extends IncomingMessage<T>, ChannelMessage<T> {
-    action: ChannelResponseAction;
-}
-
-// Connection-specific messages (connected, disconnected, failed)
-export interface ConnectionMessage<T = any> extends IncomingMessage<T> {
-    action: ConnectionAction;
+// Incoming connection message
+export interface IncomingConnectionMessage extends IncomingMessage {
+    action: ActionType.CONNECTED | ActionType.DISCONNECTED;
     connectionId: string;
+    connectionDetails?: ConnectionDetails;
+}
+
+// Incoming channel message
+export interface IncomingChannelMessage extends IncomingMessage {
+    action: ActionType.SUBSCRIBED | ActionType.UNSUBSCRIBED | ActionType.PUBLISHED;
+    channel: string;
+    subscriptionId?: string;
+}
+
+// Incoming data message
+export interface IncomingDataMessage extends IncomingMessage {
+    action: ActionType.MESSAGE;
+    id: string;
+    timestamp: string;
+    channel: string;
+    messages: DataMessagePayload[];
+}
+
+// Error message
+export interface ErrorMessage extends IncomingMessage {
+    action: ActionType.ERROR;
+    error: ErrorInfo;
 }

@@ -3,6 +3,7 @@ import { AuthManager } from "./auth-manager";
 import { BaseChannel } from "./channel";
 import { HttpClient } from "./http-client";
 import { OptionManager } from "./option-manager";
+import { RestPublishRequest } from "interfaces/message.interface";
 
 export class RestChannel extends BaseChannel {
     private httpClient: HttpClient;
@@ -21,7 +22,7 @@ export class RestChannel extends BaseChannel {
         this.optionManager = optionManager;
     }
 
-    public async publish(message: any): Promise<void> {
+    public async publish(payload: any, event?: string, clientId?: string): Promise<void> {
         try {
             const headers = this.authManager.getAuthHeaders();
             const host = this.optionManager.getOption("httpHost");
@@ -32,7 +33,14 @@ export class RestChannel extends BaseChannel {
                 port ? `:${port}` : ""
             }/v1/channel/${this.name}/messages`;
     
-            await this.httpClient.post(url, message, headers);
+            const requestPayload: RestPublishRequest = {
+                channels: [this.name],
+                data: payload,
+                event,
+                clientId
+            };
+    
+            await this.httpClient.post(url, requestPayload, headers);
         } catch (error) {
             this.emit(ChannelEvents.FAILED, error);
             throw error;

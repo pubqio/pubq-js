@@ -1,8 +1,14 @@
-import { ChannelActions, ChannelResponseActions } from "types/action.type";
+import { ActionType } from "types/action.type";
 import { BaseChannel } from "./channel";
 import { WebSocketClient } from "./websocket-client";
 import { ChannelEvents } from "types/event.type";
-import { IncomingChannelMessage } from "interfaces/message.interface";
+import { 
+    IncomingChannelMessage, 
+    OutgoingChannelMessage, 
+    DataMessagePayload, 
+    IncomingDataMessage,
+    OutgoingDataMessage
+} from "interfaces/message.interface";
 
 export class SocketChannel extends BaseChannel {
     private wsClient: WebSocketClient;
@@ -29,10 +35,10 @@ export class SocketChannel extends BaseChannel {
 
         this.messageHandler = (event) => {
             try {
-                const message = JSON.parse(
-                    event.data
-                ) as IncomingChannelMessage;
-                this.handleMessage(message);
+                const message = JSON.parse(event.data);
+                if (message.channel === this.name) {
+                    this.handleMessage(message);
+                }
             } catch (error) {
                 console.error("Error parsing message:", error);
                 this.emit(ChannelEvents.FAILED, error);
@@ -41,47 +47,49 @@ export class SocketChannel extends BaseChannel {
         socket.addEventListener("message", this.messageHandler);
     }
 
-    private handleMessage(message: IncomingChannelMessage): void {
-        if (message.channel !== this.name) {
-            return;
-        }
-
+    private handleMessage(message: any): void {
         switch (message.action) {
-            case ChannelResponseActions.MESSAGE:
+            case ActionType.MESSAGE:
                 if (this.isSubscribed()) {
-                    this.messageCallback?.(message);
+                    this.messageCallback?.(message as IncomingDataMessage);
                 }
                 break;
 
-            case ChannelResponseActions.SUBSCRIBED:
+            case ActionType.SUBSCRIBED:
                 this.subscribed = true;
                 this.pendingSubscribe = false;
                 this.emit(ChannelEvents.SUBSCRIBED);
                 break;
 
-            case ChannelResponseActions.UNSUBSCRIBED:
+            case ActionType.UNSUBSCRIBED:
                 this.subscribed = false;
                 this.pendingSubscribe = false;
                 this.messageCallback = undefined;
                 this.emit(ChannelEvents.UNSUBSCRIBED);
                 break;
 
-            case ChannelResponseActions.FAILED:
-                this.emit(ChannelEvents.FAILED, message.data);
+            case ActionType.ERROR:
+                this.emit(ChannelEvents.FAILED, message.error);
                 break;
         }
     }
 
-    public async publish(message: any): Promise<void> {
+    public async publish(payload: any, event?: string, clientId?: string): Promise<void> {
         if (!this.wsClient.isConnected()) {
             throw new Error("Cannot publish: WebSocket is not connected");
         }
 
         try {
-            const publishMessage = {
-                action: ChannelActions.PUBLISH,
+            const messagePayload: DataMessagePayload = {
+                payload,
+                event,
+                clientId
+            };
+
+            const publishMessage: OutgoingDataMessage = {
+                action: ActionType.PUBLISH,
                 channel: this.name,
-                data: message,
+                messages: [messagePayload]
             };
 
             this.wsClient.send(JSON.stringify(publishMessage));
@@ -105,9 +113,9 @@ export class SocketChannel extends BaseChannel {
         this.messageCallback = callback;
         this.pendingSubscribe = false;
 
-        const actionMessage = {
-            action: ChannelActions.SUBSCRIBE,
-            channel: this.name,
+        const actionMessage: OutgoingChannelMessage = {
+            action: ActionType.SUBSCRIBE,
+            channel: this.name
         };
         this.wsClient.send(JSON.stringify(actionMessage));
     }
@@ -137,9 +145,9 @@ export class SocketChannel extends BaseChannel {
 
         this.emit(ChannelEvents.UNSUBSCRIBING);
 
-        const actionMessage = {
-            action: ChannelActions.UNSUBSCRIBE,
-            channel: this.name,
+        const actionMessage: OutgoingChannelMessage = {
+            action: ActionType.UNSUBSCRIBE,
+            channel: this.name
         };
         this.wsClient.send(JSON.stringify(actionMessage));
     }

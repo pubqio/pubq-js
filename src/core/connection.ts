@@ -3,8 +3,8 @@ import { EventEmitter } from "./event-emitter";
 import { OptionManager } from "./option-manager";
 import { WebSocketClient } from "./websocket-client";
 import { PubQWebSocket } from "interfaces/websocket.interface";
-import { IncomingMessage } from "interfaces/message.interface";
-import { ConnectionActions } from "types/action.type";
+import { IncomingConnectionMessage, IncomingMessage } from "interfaces/message.interface";
+import { ActionType } from "types/action.type";
 import { AuthManager } from "./auth-manager";
 import { Logger } from "utils/logger";
 import { SocketChannelManager } from "./channel-manager";
@@ -50,7 +50,7 @@ class Connection extends EventEmitter {
         const port = this.optionManager.getOption("wsPort");
 
         const protocol = secure ? "wss" : "ws";
-        const baseUrl = `${protocol}://${host}${port ? `:${port}` : ""}/v1/`;
+        const baseUrl = `${protocol}://${host}${port ? `:${port}` : ""}/v1`;
 
         return this.authManager.getAuthenticateUrl(baseUrl);
     }
@@ -126,9 +126,9 @@ class Connection extends EventEmitter {
             try {
                 const message: IncomingMessage = JSON.parse(event.data);
                 this.logger.debug("Received message:", message);
-                if (message.action === ConnectionActions.CONNECTED) {
-                    this.emit(ConnectionEvents.CONNECTED, message);
-                } else if (message.action === ConnectionActions.DISCONNECTED) {
+                if (message.action === ActionType.CONNECTED) {
+                    this.emit(ConnectionEvents.CONNECTED, message as IncomingConnectionMessage);
+                } else if (message.action === ActionType.DISCONNECTED) {
                     this.emit(ConnectionEvents.DISCONNECTED);
                 }
             } catch (error) {
