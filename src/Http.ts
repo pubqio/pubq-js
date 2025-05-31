@@ -1,7 +1,7 @@
 import axios, { AxiosInstance } from "axios";
 
 class Http {
-    private baseUrl = "https://rest.pubq.io";
+    private baseUrl = "https://rest.pubq.dev";
 
     private client: AxiosInstance;
 

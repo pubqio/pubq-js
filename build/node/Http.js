@@ -7,7 +7,7 @@ exports.Http = void 0;
 var axios_1 = __importDefault(require("axios"));
 var Http = /** @class */ (function () {
     function Http() {
-        this.baseUrl = "https://rest.pubq.io";
+        this.baseUrl = "https://rest.pubq.dev";
         this.client = axios_1.default.create({
             baseURL: this.baseUrl,
         });

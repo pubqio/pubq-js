@@ -1,12 +1,12 @@
 # PUBQ JavaScript SDK
 
-[PUBQ](https://pubq.io) is a pub/sub channels cloud and this is the official JavaScript client library including both real-time and REST interfaces.
+[PUBQ](https://pubq.dev) is a pub/sub channels cloud and this is the official JavaScript client library including both real-time and REST interfaces.
 
-To meet PUBQ and see more info and examples, please read the [documentation](https://pubq.io/docs).
+To meet PUBQ and see more info and examples, please read the [documentation](https://pubq.dev/docs).
 
 # Getting Started
 
-Follow these steps to just start building with PUBQ in JavaScript or see the [Quickstart guide](https://pubq.io/docs/getting-started/quickstart) which covers more programming languages.
+Follow these steps to just start building with PUBQ in JavaScript or see the [Quickstart guide](https://pubq.dev/docs/getting-started/quickstart) which covers more programming languages.
 
 ## Install with package manager
 
@@ -38,7 +38,7 @@ Import from CDN:
 
 ## Interacting with PUBQ
 
-Get your application API key from [PUBQ dashboard](https://dashboard.pubq.io) by [creating a new app](https://dashboard.pubq.io/applications/create) or use existing one.
+Get your application API key from [PUBQ dashboard](https://dashboard.pubq.dev) by [creating a new app](https://dashboard.pubq.dev/applications/create) or use existing one.
 
 Connect to PUBQ:
 
@@ -73,7 +73,7 @@ channel.publish("Hello!");
 
 # Development
 
-Please, read the [contribution guide](https://pubq.io/docs/basics/contribution).
+Please, read the [contribution guide](https://pubq.dev/docs/basics/contribution).
 
 ## Install
 
